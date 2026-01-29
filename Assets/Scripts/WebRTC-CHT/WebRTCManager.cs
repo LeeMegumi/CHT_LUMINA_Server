@@ -351,8 +351,8 @@ public class WebRTCManager : MonoBehaviour
         RTCOfferAnswerOptions options = new RTCOfferAnswerOptions
         {
             iceRestart = false,
-            offerToReceiveAudio = true,
-            offerToReceiveVideo = false
+            /*offerToReceiveAudio = true,
+            offerToReceiveVideo = false*/
         };
 
         var offerOp = peerConnection.CreateOffer(ref options);
@@ -486,6 +486,10 @@ public class WebRTCManager : MonoBehaviour
         {
             case "chat":
                 Debug.Log($"💬 聊天訊息: {message}");
+                if (message.Contains("thinking_status': 'finished") && ServerMain.instance.QACount == 0)
+                {
+                    ServerMain.instance.EndAction();
+                }
                 break;
 
             case "echo":
@@ -550,7 +554,7 @@ public class WebRTCManager : MonoBehaviour
             persona = new Persona
             {
                 avatar_name = "Lumina",
-                traits = new string[] { "溫柔", "親切", "神秘" },
+                traits = new string[] { "熱情", "開朗", "幽默", "搞笑" },
                 domain = "籤詩解讀、命理諮詢、心靈指引",
                 role_title = "廟宇解籤師",
                 avatar_id = "lumina"
@@ -565,7 +569,7 @@ public class WebRTCManager : MonoBehaviour
             new FewShotExample
             {
                 role = "assistant",
-                content = "Lumi~ 您好呀！歡迎來到廟宇展場，我是 Lumina，很高興能為您服務。您今天是來求籤問事的嗎？"
+                content = "Lumi~ 客人你好呀！人工智慧通玄理，命運未來啟鴻圖，歡迎來到抽籤未來，您今天是來求籤問事的嗎？"
             },
             new FewShotExample
             {

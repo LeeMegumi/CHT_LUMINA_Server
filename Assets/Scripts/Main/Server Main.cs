@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class ServerMain : MonoBehaviour
 {
+    public static ServerMain instance { get; private set; }
     [Header("Network System")]
     public TcpServerAdvanced TcpServer;
     [Header("TTS System")]
@@ -19,6 +20,11 @@ public class ServerMain : MonoBehaviour
     public Text UIText;
     [Header("籤詩牆")]
     public TossingWall tossingwall;
+
+    [Header("問答次數顯示文字")]
+    public Text QACountText;
+    [Header("問答次數")]
+    public int QACount;
 
     public enum LuminaState
     {
@@ -43,9 +49,12 @@ public class ServerMain : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if(instance == null) instance = this;
         currentStage = Stage.Sleep;
         //TcpServer Send- update current Stage
         Lumina_Animtor.IdleLoop = true;
+        QACount = 5;
+        QACountText.text = "剩餘問答次數：" + QACount;
     }
 
     // Update is called once per frame
@@ -64,14 +73,28 @@ public class ServerMain : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.T))
         {
             TTS_System.ToggleRecording();
+            if (QACount > 0)
+            {
+                QACount--;
+                QACountText.text = "剩餘問答次數：" + QACount;
+
+            }
         }
         if (Input.GetKeyUp(KeyCode.Y))
         {
             WebRTCManager.instance.SendMessage("請問你叫什麼名字?", "chat");
         }
+        if (Input.GetKeyUp(KeyCode.R))
+        {
+            TcpServer.SendCommandToAll("RESET");
+            AllReset();
+        }
         switch (currentStage)
         {
-           
+           case Stage.FreeQA:
+                //問答中
+                
+                break;
 
         }
     }
@@ -178,6 +201,22 @@ public class ServerMain : MonoBehaviour
     /// <param name="luckynumData"></param>
     public void SendLuckyNumToCHT(int luckynumData)=> WebRTCManager.instance.SendMessage("我抽到了第" + luckynumData + "籤，可以幫我看看嗎?", "chat");
 
+    public void EndAction()
+    {
+        NextStage(Stage.End);  //進入喚醒狀態
+        LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips[1]); //嘴型跟音檔。
+        Lumina_Animtor.PlaySingleAnimation("Reset", true, () =>
+        {
+            //動畫結束後要做的事情
+            NextStage(Stage.Sleep);  //進入抽籤環節
+
+            //Canvas 擲筊說明UI
+            UIText.text = "請搖晃手上的LUMINA籤筒，喚醒LUMINA！";
+            QACount = 5;
+            QACountText.text = "剩餘問答次數：" + QACount;
+        });
+    }
+
     /// <summary>
     /// 重製，並回到Sleep狀態。
     /// </summary>
@@ -186,6 +225,7 @@ public class ServerMain : MonoBehaviour
         currentStage = Stage.Sleep;
         Lumina_Animtor.PlaySingleAnimation("Reset",true);
         tossingwall.SetClearState();  //新增閃爍狀態
-
+        QACount = 5;
+        QACountText.text = "剩餘問答次數：" + QACount;
     }
 }
