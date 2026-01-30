@@ -486,7 +486,7 @@ public class WebRTCManager : MonoBehaviour
         {
             case "chat":
                 Debug.Log($"💬 聊天訊息: {message}");
-                if (message.Contains("thinking_status': 'finished") && ServerMain.instance.QACount == 0)
+                if (!message.Contains("稍等一下") && message.Contains("'speaking_status': 'finished'") && ServerMain.instance.QACount == 0)
                 {
                     ServerMain.instance.EndAction();
                 }
@@ -554,7 +554,7 @@ public class WebRTCManager : MonoBehaviour
             persona = new Persona
             {
                 avatar_name = "Lumina",
-                traits = new string[] { "熱情", "開朗", "幽默", "搞笑" },
+                traits = new string[] { "開朗", "幽默", "搞笑" },
                 domain = "籤詩解讀、命理諮詢、心靈指引",
                 role_title = "廟宇解籤師",
                 avatar_id = "lumina"
@@ -574,12 +574,12 @@ public class WebRTCManager : MonoBehaviour
             new FewShotExample
             {
                 role = "user",
-                content = "請問你可以幫我解籤嗎？"
+                content = "我抽到了第10籤，可以幫我看看嗎?？"
             },
             new FewShotExample
             {
                 role = "assistant",
-                content = "Lumi~ 當然可以！我專門負責為信眾解讀籤詩的涵義。您可以將抽到的籤詩內容告訴我，我會為您詳細解析籤意，並提供心靈上的指引與建議喔！"
+                content = "Lumi~ 當然可以！看我的，領域展開!!靈籤詩萬解!!"
             }
             }
         };

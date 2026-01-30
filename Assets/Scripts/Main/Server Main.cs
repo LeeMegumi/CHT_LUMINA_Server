@@ -87,7 +87,7 @@ public class ServerMain : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.R))
         {
             TcpServer.SendCommandToAll("RESET");
-            AllReset();
+            ServerAllReset();
         }
         switch (currentStage)
         {
@@ -212,15 +212,15 @@ public class ServerMain : MonoBehaviour
 
             //Canvas 擲筊說明UI
             UIText.text = "請搖晃手上的LUMINA籤筒，喚醒LUMINA！";
-            QACount = 5;
-            QACountText.text = "剩餘問答次數：" + QACount;
+            TcpServer.SendCommandToAll("RESET");
+            ServerAllReset();
         });
     }
 
     /// <summary>
     /// 重製，並回到Sleep狀態。
     /// </summary>
-    public void AllReset()
+    public void ServerAllReset()
     {
         currentStage = Stage.Sleep;
         Lumina_Animtor.PlaySingleAnimation("Reset",true);

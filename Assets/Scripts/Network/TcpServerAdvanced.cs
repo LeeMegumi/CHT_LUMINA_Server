@@ -121,7 +121,7 @@ public class TcpServerAdvanced : MonoBehaviour
             if (msg.action == "GETNUMBER") main.GETLotteryNumberAction(msg.luckynum);
             if (msg.action == "TOSSINGFAILED") main.TossingFailedAction(msg.luckynum); 
             if (msg.action == "FREEQA") main.TossingSuccessfulAction(msg.luckynum); //傳遞籤號，同時發送訊息給中華平台。
-            if (msg.action == "RESET") main.AllReset();
+            if (msg.action == "RESET") main.ServerAllReset();
         }
     }
     void SendServerStatus(ClientSession session)
