@@ -48,7 +48,7 @@ public class ElevenLabs_VAD : MonoBehaviour
             {
                 Debug.Log( i + Microphone.devices[i]);
             }
-            microphoneDevice = Microphone.devices[1];
+            microphoneDevice = Microphone.devices[0];
             UpdateStatus("準備就緒，點擊按鈕開始錄音");
         }
         else
