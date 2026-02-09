@@ -486,7 +486,7 @@ public class WebRTCManager : MonoBehaviour
         {
             case "chat":
                 Debug.Log($"💬 聊天訊息: {message}");
-                if (!message.Contains("稍等一下") && message.Contains("'speaking_status': 'finished'") && ServerMain.instance.QACount == 0)
+                if (!(message.Contains("稍等一下") ||message.Contains("稍等片刻") )&& message.Contains("'speaking_status': 'finished'") && ServerMain.instance.QACount == 0)
                 {
                     ServerMain.instance.EndAction();
                 }
