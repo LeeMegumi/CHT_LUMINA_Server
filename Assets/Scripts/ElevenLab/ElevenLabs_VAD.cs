@@ -6,6 +6,8 @@ using UnityEngine.Networking;
 using System.IO;
 using System;
 using OpenCC.Unity;
+using System.Text.RegularExpressions;
+using UnityEngine.Windows;
 
 public class ElevenLabs_VAD : MonoBehaviour
 {
@@ -16,7 +18,10 @@ public class ElevenLabs_VAD : MonoBehaviour
     [SerializeField] private Button recordButton;
     [SerializeField] private Text statusText;
     [SerializeField] private Text transcriptionText;
+    [SerializeField] private Text currentMicname;
     [SerializeField] private Image vadIndicator; // VAD 指示器（可選）
+    [SerializeField] private Sprite[] vadIndicatorSprites; // VAD 指示器（可選）
+    
 
     [Header("錄音設定")]
     [SerializeField] private int maxRecordingTime = 30;
@@ -49,11 +54,15 @@ public class ElevenLabs_VAD : MonoBehaviour
                 Debug.Log( i + Microphone.devices[i]);
             }
             microphoneDevice = Microphone.devices[0];
+
             UpdateStatus("準備就緒，點擊按鈕開始錄音");
+            currentMicname.text = "Mic Name : " + microphoneDevice;
+
         }
         else
         {
             UpdateStatus("錯誤：找不到麥克風裝置");
+            currentMicname.text = "Mic Name : No mic";
             recordButton.interactable = false;
             return;
         }
@@ -146,7 +155,7 @@ public class ElevenLabs_VAD : MonoBehaviour
     {
         if (vadIndicator != null)
         {
-            vadIndicator.color = isActive ? Color.green : Color.red;
+            vadIndicator.sprite = isActive ? vadIndicatorSprites[1] : vadIndicatorSprites[0];
         }
     }
 
@@ -184,10 +193,10 @@ public class ElevenLabs_VAD : MonoBehaviour
         recordingStartPosition = 0;
 
         // 初始化 VAD 指示器
-        if (vadIndicator != null)
+        /*if (vadIndicator != null)
         {
             vadIndicator.color = Color.yellow;
-        }
+        }*/
     }
 
     void StopRecording()
@@ -260,9 +269,11 @@ public class ElevenLabs_VAD : MonoBehaviour
 
             if (!string.IsNullOrEmpty(response.text))
             {
-                Debug.Log(FontConvert.Instance.ConvertToTraditional(response.text));
-                transcriptionText.text = FontConvert.Instance.ConvertToTraditional(response.text);
+                string tempwords = Regex.Replace(response.text, @"\([^)]*\)", ""); //移除()內的文字。
+                Debug.Log(FontConvert.Instance.ConvertToTraditional(tempwords));
+                transcriptionText.text = FontConvert.Instance.ConvertToTraditional(tempwords);
                 WebRTCManager.instance.SendMessage(transcriptionText.text);
+                ChatManager.instance.AddUserMessage(transcriptionText.text);
                 UpdateStatus("辨識完成！");
             }
             else

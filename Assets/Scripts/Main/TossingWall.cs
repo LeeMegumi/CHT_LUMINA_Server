@@ -5,20 +5,20 @@ using UnityEngine.UI;
 
 public class TossingWall : MonoBehaviour
 {
+    [Header("Canvas Settings")]
+    [SerializeField] private bool isFirstCanvas = true; // true = 1-30, false = 31-60
+
     [Header("Grid Settings")]
-    [SerializeField] private int columns = 10; // 橫排10個
+    [SerializeField] private int columns = 5; // 橫排5個
     [SerializeField] private int rows = 6; // 豎排6個
-    [SerializeField] private Vector2 cellSize = new Vector2(154f, 154f); // 調整為適合1920x1080
-    [SerializeField] private Vector2 spacing = new Vector2(15f, 15f); // 調整間距
+    [SerializeField] private Vector2 cellSize = new Vector2(185f, 185f); // 調整為適合1080x1920
+    [SerializeField] private Vector2 spacing = new Vector2(18f, 18f); // 調整間距
 
     [Header("Color Settings")]
     [SerializeField] private Color clearColor = new Color(100f / 255f, 100f / 255f, 100f / 255f, 1f); // 灰色
     [SerializeField] private Color checkingColor = new Color(255f / 255f, 190f / 255f, 100f / 255f, 1f); // 黃色
     [SerializeField] private float transitionDuration = 0.5f; // 漸變時間
     [SerializeField] private float blinkInterval = 0.8f; // 閃爍間隔
-
-    [Header("Prefab Settings")]
-    [SerializeField] private GameObject imagePrefab; // 如果需要使用預製體
 
     private Dictionary<int, Image> imageDict = new Dictionary<int, Image>();
     private Dictionary<int, Text> textDict = new Dictionary<int, Text>();
@@ -34,8 +34,24 @@ public class TossingWall : MonoBehaviour
     private WallState currentState = WallState.Clear;
     private int currentCheckingNumber = -1;
 
+    // 編號範圍
+    private int startNumber;
+    private int endNumber;
+
     void Start()
     {
+        // 根據是第一個還是第二個Canvas設定編號範圍
+        if (isFirstCanvas)
+        {
+            startNumber = 1;
+            endNumber = 30;
+        }
+        else
+        {
+            startNumber = 31;
+            endNumber = 60;
+        }
+
         InitializeWall();
     }
 
@@ -44,13 +60,18 @@ public class TossingWall : MonoBehaviour
     /// </summary>
     void InitializeWall()
     {
-        // 設置 Canvas
+        // 確保 Canvas 設定正確
         Canvas canvas = GetComponent<Canvas>();
         if (canvas == null)
         {
             canvas = gameObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            gameObject.AddComponent<CanvasScaler>();
+
+            CanvasScaler scaler = gameObject.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080, 1920); // 直式解析度
+            scaler.matchWidthOrHeight = 0.5f;
+
             gameObject.AddComponent<GraphicRaycaster>();
         }
 
@@ -73,17 +94,19 @@ public class TossingWall : MonoBehaviour
         gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
         gridLayout.childAlignment = TextAnchor.MiddleCenter;
 
-        // 創建60個Image方塊
-        int totalCells = rows * columns;
-        for (int i = 1; i <= totalCells; i++)
+        // 創建30個Image方塊 (從startNumber到endNumber)
+        for (int i = startNumber; i <= endNumber; i++)
         {
             CreateImageCell(i, gridContainer.transform);
         }
 
-        // 調整容器大小以適應所有格子
+        // 計算容器大小以適應所有格子
         float totalWidth = (cellSize.x * columns) + (spacing.x * (columns - 1));
         float totalHeight = (cellSize.y * rows) + (spacing.y * (rows - 1));
         gridRect.sizeDelta = new Vector2(totalWidth, totalHeight);
+
+        string canvasName = isFirstCanvas ? "Canvas 1-30" : "Canvas 31-60";
+        Debug.Log($"{canvasName} initialized: Grid size {totalWidth}x{totalHeight}, Numbers {startNumber}-{endNumber}");
     }
 
     /// <summary>
@@ -106,9 +129,10 @@ public class TossingWall : MonoBehaviour
         Text text = textObj.AddComponent<Text>();
         text.text = number.ToString();
         text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        text.fontSize = 24;
+        text.fontSize = 32; // 根據格子大小調整字體
         text.alignment = TextAnchor.MiddleCenter;
         text.color = Color.white;
+        text.fontStyle = FontStyle.Bold;
 
         RectTransform textRect = textObj.GetComponent<RectTransform>();
         textRect.anchorMin = Vector2.zero;
@@ -138,9 +162,16 @@ public class TossingWall : MonoBehaviour
     /// </summary>
     public void SetCheckingState(int number)
     {
-        if (number < 1 || number > imageDict.Count)
+        // 檢查編號是否在此Canvas的範圍內
+        if (number < startNumber || number > endNumber)
         {
-            Debug.LogWarning($"Invalid number: {number}. Must be between 1 and {imageDict.Count}");
+            Debug.LogWarning($"Number {number} is not in this canvas range ({startNumber}-{endNumber})");
+            return;
+        }
+
+        if (!imageDict.ContainsKey(number))
+        {
+            Debug.LogWarning($"Invalid number: {number}");
             return;
         }
 
@@ -285,21 +316,33 @@ public class TossingWall : MonoBehaviour
         transitionCoroutines.Clear();
     }
 
+    /// <summary>
+    /// 檢查指定編號是否屬於此Canvas
+    /// </summary>
+    public bool ContainsNumber(int number)
+    {
+        return number >= startNumber && number <= endNumber;
+    }
+
     // ========== 測試用公開方法 ==========
 
-    /// <summary>
-    /// 測試用：在Inspector中可以快速測試
-    /// </summary>
     [ContextMenu("Test Clear")]
     public void TestClear()
     {
         SetClearState();
     }
 
-    [ContextMenu("Test Checking 25")]
-    public void TestChecking()
+    [ContextMenu("Test Checking First Number")]
+    public void TestCheckingFirst()
     {
-        SetCheckingState(25);
+        SetCheckingState(startNumber);
+    }
+
+    [ContextMenu("Test Checking Middle Number")]
+    public void TestCheckingMiddle()
+    {
+        int middleNumber = (startNumber + endNumber) / 2;
+        SetCheckingState(middleNumber);
     }
 
     [ContextMenu("Test Confirm")]

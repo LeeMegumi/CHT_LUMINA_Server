@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using static AvatarAPIManager;
+using Newtonsoft.Json.Linq;
 
 public class WebRTCManager : MonoBehaviour
 {
@@ -486,6 +487,11 @@ public class WebRTCManager : MonoBehaviour
         {
             case "chat":
                 Debug.Log($"💬 聊天訊息: {message}");
+                if (ExtractTextFromResponse("status", message) == "start")
+                {
+                    ChatManager.instance.AddAIMessage(ExtractTextFromResponse("text", message));
+                }
+                
                 if (!(message.Contains("稍等一下") ||message.Contains("稍等片刻") )&& message.Contains("'speaking_status': 'finished'") && ServerMain.instance.QACount == 0)
                 {
                     ServerMain.instance.EndAction();
@@ -502,6 +508,11 @@ public class WebRTCManager : MonoBehaviour
                 HandleCommand(message);
                 break;
         }
+    }
+    public string ExtractTextFromResponse(string part,string jsonString)
+    {
+        JObject jsonObject = JObject.Parse(jsonString);
+        return jsonObject[part].ToString();
     }
 
     private void HandleCommand(string message)
@@ -543,6 +554,27 @@ public class WebRTCManager : MonoBehaviour
         public string value;
     }
 
+    [System.Serializable]
+    public class CommandData
+    {
+        public string cmd;           // 指令名稱
+        public object arg;           // 指令參數（可為 null）
+        public long ts;              // 時間戳
+        public int v = 1;            // 協議版本號（預設為 1）
+    }
+    [System.Serializable]
+    public class SkipArg
+    {
+        public string reason;
+    }
+
+    // Reset 指令的參數
+    [System.Serializable]
+    public class ResetArg
+    {
+        public string reason;
+    }
+
     private IEnumerator SendOfferToServer(RTCSessionDescription offer, string accessToken, string offerUrl)
     {
         // 建立完整的 Offer 請求（包含 Persona 和 Few-shot）
@@ -574,7 +606,7 @@ public class WebRTCManager : MonoBehaviour
             new FewShotExample
             {
                 role = "user",
-                content = "我抽到了第10籤，可以幫我看看嗎?？"
+                content = "我抽到籤了，可以幫我解籤嗎？"
             },
             new FewShotExample
             {

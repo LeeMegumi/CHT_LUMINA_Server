@@ -1,7 +1,9 @@
 using NUnit.Framework.Internal;
+using System;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using static WebRTCManager;
 
 public class ServerMain : MonoBehaviour
 {
@@ -82,10 +84,22 @@ public class ServerMain : MonoBehaviour
         }
         if (Input.GetKeyUp(KeyCode.Y))
         {
-            WebRTCManager.instance.SendMessage("請問你叫什麼名字?", "chat");
+            //WebRTCManager.instance.SendMessage("請問你叫什麼名字?", "chat");
+            var resetCommand = new CommandData
+            {
+                cmd = "res_1",
+                arg = new ResetArg { reason = "conversation" },
+                ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                v = 1
+            };
+
+            WebRTCManager.instance.SendJsonMessage(resetCommand, "command");
+
         }
         if (Input.GetKeyUp(KeyCode.R))
         {
+            
+            
             TcpServer.SendCommandToAll("RESET");
             ServerAllReset();
         }
@@ -95,10 +109,22 @@ public class ServerMain : MonoBehaviour
                 //問答中
                 
                 break;
-
         }
     }
     public void NextStage(Stage nextstage)=> currentStage = nextstage;
+
+    public void AvatarClearConversation()
+    {
+        var resetCommand = new CommandData
+        {
+            cmd = "res_1",
+            arg = new ResetArg { reason = "conversation" },
+            ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            v = 1
+        };
+
+        WebRTCManager.instance.SendJsonMessage(resetCommand, "command");
+    }
 
     //----------------------------------------Server發送指令至Client-------------------------------
 
@@ -199,7 +225,7 @@ public class ServerMain : MonoBehaviour
     /// 傳送籤號給CHT AI後台
     /// </summary>
     /// <param name="luckynumData"></param>
-    public void SendLuckyNumToCHT(int luckynumData)=> WebRTCManager.instance.SendMessage("我抽到了第" + luckynumData + "籤，可以幫我看看嗎?", "chat");
+    public void SendLuckyNumToCHT(int luckynumData)=> WebRTCManager.instance.SendMessage("我抽到了第" + luckynumData + "籤，可以幫我解籤嗎?", "chat");
 
     public void EndAction()
     {
@@ -227,5 +253,7 @@ public class ServerMain : MonoBehaviour
         tossingwall.SetClearState();  //新增閃爍狀態
         QACount = 5;
         QACountText.text = "剩餘問答次數：" + QACount;
+        ChatManager.instance.ClearAllMessages();
+        AvatarClearConversation();
     }
 }
