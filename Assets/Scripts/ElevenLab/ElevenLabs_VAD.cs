@@ -21,6 +21,7 @@ public class ElevenLabs_VAD : MonoBehaviour
     [SerializeField] private Text currentMicname;
     [SerializeField] private Image vadIndicator; // VAD 指示器（可選）
     [SerializeField] private Sprite[] vadIndicatorSprites; // VAD 指示器（可選）
+    [SerializeField] private Animator TalkLight_Animator; // VAD 指示器（可選）
     
 
     [Header("錄音設定")]
@@ -37,7 +38,7 @@ public class ElevenLabs_VAD : MonoBehaviour
 
     private AudioClip recordedClip;
     private string microphoneDevice;
-    private bool isRecording = false;
+    public bool isRecording = false;
     private bool isVoiceDetected = false;
     private float? vadStopBegin = null;
     private float lastVadCheckTime = 0f;
@@ -57,7 +58,6 @@ public class ElevenLabs_VAD : MonoBehaviour
 
             UpdateStatus("準備就緒，點擊按鈕開始錄音");
             currentMicname.text = "Mic Name : " + microphoneDevice;
-
         }
         else
         {
@@ -67,7 +67,7 @@ public class ElevenLabs_VAD : MonoBehaviour
             return;
         }
 
-        recordButton.onClick.AddListener(ToggleRecording);
+        //recordButton.onClick.AddListener(ToggleRecording);
         UpdateButtonText();
     }
 
@@ -81,7 +81,7 @@ public class ElevenLabs_VAD : MonoBehaviour
             lastVadCheckTime = Time.time;
             CheckVoiceActivity();
         }
-
+       
         // 檢查是否需要自動停止
         if (vadStopBegin.HasValue)
         {
@@ -114,8 +114,9 @@ public class ElevenLabs_VAD : MonoBehaviour
 
         // 計算音訊能量（RMS）
         float energy = CalculateRMS(samples);
-        bool voiceDetected = energy > vadEnergyThreshold;
+        Debug.Log($"VAD 能量: {energy:F4}, 閾值: {vadEnergyThreshold:F4}");
 
+        bool voiceDetected = energy > vadEnergyThreshold;
         // 狀態改變時的處理
         if (voiceDetected != isVoiceDetected)
         {
@@ -133,7 +134,7 @@ public class ElevenLabs_VAD : MonoBehaviour
                 vadStopBegin = Time.time;
                 UpdateStatus("錄音中... (靜音中)");
             }
-
+            
             // 更新 VAD 指示器顏色
             UpdateVADIndicator(voiceDetected);
 
@@ -193,10 +194,11 @@ public class ElevenLabs_VAD : MonoBehaviour
         recordingStartPosition = 0;
 
         // 初始化 VAD 指示器
-        /*if (vadIndicator != null)
+        if (vadIndicator != null)
         {
-            vadIndicator.color = Color.yellow;
-        }*/
+            vadIndicator.sprite = vadIndicatorSprites[1];
+            TalkLight_Animator.Play("Talk_Active");
+        }
     }
 
     void StopRecording()
@@ -213,7 +215,8 @@ public class ElevenLabs_VAD : MonoBehaviour
         // 重置 VAD 指示器
         if (vadIndicator != null)
         {
-            vadIndicator.color = Color.gray;
+            vadIndicator.sprite = vadIndicatorSprites[0];
+            TalkLight_Animator.Play("Talk_Disable");
         }
 
         // 計算實際錄音長度並裁掉靜音部分

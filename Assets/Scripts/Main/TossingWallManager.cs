@@ -1,10 +1,26 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TossingWallManager : MonoBehaviour
 {
+    public static TossingWallManager Instance { get; private set; }
     [SerializeField] private TossingWall canvas1_30;
     [SerializeField] private TossingWall canvas31_60;
 
+    public Image LuckyContentImage; // 用於顯示籤詩內容的Image
+    public Sprite[] LuckyCotents; // 存放籤詩內容的Sprite陣列，需在Inspector中設置
+
+    private void Start()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     // 清除所有
     public void ClearAll()
     {
@@ -15,6 +31,7 @@ public class TossingWallManager : MonoBehaviour
     // 設置任意編號為Checking狀態
     public void SetCheckingNumber(int number)
     {
+       
         // 先清除兩個Canvas
         canvas1_30.SetClearState();
         canvas31_60.SetClearState();
@@ -31,10 +48,22 @@ public class TossingWallManager : MonoBehaviour
     }
 
     // 確認當前選擇
-    public void ConfirmCurrent()
+    public void ConfirmCurrent(int number)
     {
-        // 嘗試在兩個Canvas上確認
-        canvas1_30.SetConfirmState();
-        canvas31_60.SetConfirmState();
+        Debug.Log("Confirming number: " + number);
+        LuckyContentImage.sprite = LuckyCotents[number - 1]; // 根據編號顯示對應的籤詩內容
+                                                             
+        if (number >= 1 && number <= 30)
+        {
+            canvas1_30.SetConfirmState();
+        }
+        else if (number >= 31 && number <= 60)
+        {
+            canvas31_60.SetConfirmState();
+        }
+        
+        
     }
+
+
 }

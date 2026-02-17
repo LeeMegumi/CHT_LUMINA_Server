@@ -116,10 +116,10 @@ public class TcpServerAdvanced : MonoBehaviour
             Debug.Log(msg.action);
             if (msg.action == "PLAY") VideoController.Instance.Play();
             if (msg.action == "PAUSE") VideoController.Instance.Pause();
-            if (msg.action == "WAKEUP") main.GotWakeUpAction();
+            if (msg.action == "WAKEUP") StartCoroutine(main.GotWakeUpAction());
             if (msg.action == "LOTTERY") main.StartLotteryAction();
-            if (msg.action == "GETNUMBER") main.GETLotteryNumberAction(msg.luckynum);
-            if (msg.action == "TOSSINGFAILED") main.TossingFailedAction(msg.luckynum); 
+            if (msg.action == "GETNUMBER") StartCoroutine(main.GETLotteryNumberAction(msg.luckynum));
+            if (msg.action == "TOSSINGFAILED") StartCoroutine(main.TossingFailedAction(msg.luckynum)); 
             if (msg.action == "FREEQA") main.TossingSuccessfulAction(msg.luckynum); //傳遞籤號，同時發送訊息給中華平台。
             if (msg.action == "RESET") main.ServerAllReset();
         }

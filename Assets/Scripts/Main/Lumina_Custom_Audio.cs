@@ -5,7 +5,10 @@ public class Lumina_Custom_Audio : MonoBehaviour
     public AudioSource uLipsync_Audiosource;
     public AudioSource customAudiosource;
 
-    public AudioClip[] LuminaAudioClips;
+    public AudioClip LuminaAudioClip_Open;
+    public AudioClip[] LuminaAudioClips_Tossing;
+    public AudioClip[] LuminaAudioClips_TossingFailed;
+    public AudioClip[] LuminaAudioClips_End;
     public void PlayCustomAudio(AudioClip clip)
     {
         customAudiosource.clip = clip;

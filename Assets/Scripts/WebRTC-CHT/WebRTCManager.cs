@@ -492,9 +492,9 @@ public class WebRTCManager : MonoBehaviour
                     ChatManager.instance.AddAIMessage(ExtractTextFromResponse("text", message));
                 }
                 
-                if (!(message.Contains("稍等一下") ||message.Contains("稍等片刻") )&& message.Contains("'speaking_status': 'finished'") && ServerMain.instance.QACount == 0)
+                if (!(message.Contains("稍等") ||message.Contains("稍後") )&& message.Contains("'speaking_status': 'finished'") && ServerMain.instance.QACount == 0)
                 {
-                    ServerMain.instance.EndAction();
+                    StartCoroutine(ServerMain.instance.EndAction());
                 }
                 break;
 

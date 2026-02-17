@@ -22,25 +22,28 @@ public class ChatManager : MonoBehaviour
     // 新增使用者訊息（語音輸入後呼叫）
     public void AddUserMessage(string messageText)
     {
-        CreateMessage(userMessagePrefab, messageText);
+        CreateMessage(userMessagePrefab,"User", messageText);
         ScrollToBottom();
     }
 
     // 新增AI回覆訊息
     public void AddAIMessage(string messageText)
     {
-        CreateMessage(aiMessagePrefab, messageText);
+        CreateMessage(aiMessagePrefab,"Lumina", messageText);
         ScrollToBottom();
     }
 
-    private void CreateMessage(GameObject prefab, string text)
+    private void CreateMessage(GameObject prefab, string nameText, string messageText)
     {
         GameObject newMessage = Instantiate(prefab, contentParent);
-        Text textComponent = newMessage.GetComponentInChildren<Text>();
-        if (textComponent != null)
-        {
-            textComponent.text = text;
-        }
+
+        // 設定Name
+        Text[] texts = newMessage.GetComponentsInChildren<Text>();
+        texts[0].text = nameText; // Name物件
+        texts[1].text = messageText; // Message物件
+        float height = texts[0].gameObject.GetComponent<RectTransform>().rect.height + texts[1].gameObject.GetComponent<RectTransform>().rect.height + 25;
+        //Debug.Log($"Calculated message height: {height}");
+        newMessage.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
     }
 
     // 自動滾動到最新訊息

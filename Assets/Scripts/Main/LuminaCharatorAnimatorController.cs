@@ -20,12 +20,15 @@ public class LuminaCharatorAnimatorController : MonoBehaviour
     private Coroutine idleCoroutine;
     private Coroutine singleAnimationCoroutine;
 
-    void Start()
+    private void Awake()
     {
         animator = GetComponent<Animator>();
-
         // 預先計算 Hash 值
         idleAnimationHashes = new int[idleAnimations.Length];
+    }
+    void Start()
+    {
+        
         for (int i = 0; i < idleAnimations.Length; i++)
         {
             idleAnimationHashes[i] = Animator.StringToHash(idleAnimations[i]);
@@ -43,9 +46,9 @@ public class LuminaCharatorAnimatorController : MonoBehaviour
             if (idleLoop)
             {
                 // 開始待機循環
-                if (idleCoroutine == null)
+                if(idleCoroutine == null)
                 {
-                    idleCoroutine = StartCoroutine(IdleLoopCoroutine());
+                        idleCoroutine = StartCoroutine(IdleLoopCoroutine());
                 }
             }
             else
@@ -147,6 +150,7 @@ public class LuminaCharatorAnimatorController : MonoBehaviour
         {
             // 隨機選擇一個待機動畫
             int randomIndex = Random.Range(0, idleAnimationHashes.Length);
+            Debug.Log("播放待機動畫: " + idleAnimations[randomIndex]);
 
             // 使用 CrossFadeInFixedTime 進行平滑融接
             animator.CrossFadeInFixedTime(idleAnimationHashes[randomIndex], crossFadeDuration);

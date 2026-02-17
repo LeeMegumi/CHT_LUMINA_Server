@@ -1,5 +1,27 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7584103518262567097
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da5ab44aadfb1804db5fd470983ac1b8, type: 3}
+  m_Name: LiftGammaGain
+  m_EditorClassIdentifier: 
+  active: 1
+  lift:
+    m_OverrideState: 0
+    m_Value: {x: 1, y: 1, z: 1, w: 0}
+  gamma:
+    m_OverrideState: 1
+    m_Value: {x: 0.97, y: 0.94, z: 1, w: -0.15624999}
+  gain:
+    m_OverrideState: 0
+    m_Value: {x: 1, y: 1, z: 1, w: 0}
 --- !u!114 &-7489133436579434587
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -21,19 +43,19 @@ MonoBehaviour:
     m_Value: 0
   toeStrength:
     m_OverrideState: 1
-    m_Value: 0.5
+    m_Value: 0.15
   toeLength:
     m_OverrideState: 0
     m_Value: 0.52
   shoulderStrength:
     m_OverrideState: 1
-    m_Value: 0.5
+    m_Value: 0.25
   shoulderLength:
     m_OverrideState: 1
-    m_Value: 0.36
+    m_Value: 0.7
   shoulderAngle:
     m_OverrideState: 1
-    m_Value: 0.85
+    m_Value: 0.7
   gamma:
     m_OverrideState: 0
     m_Value: 1.1
@@ -70,6 +92,46 @@ MonoBehaviour:
   maxNits:
     m_OverrideState: 0
     m_Value: 1000
+--- !u!114 &-6951985879038505415
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7649d9368d3a5c4ab8ad01a63e04962, type: 3}
+  m_Name: ChannelMixer
+  m_EditorClassIdentifier: 
+  active: 1
+  redOutRedIn:
+    m_OverrideState: 1
+    m_Value: 110
+  redOutGreenIn:
+    m_OverrideState: 1
+    m_Value: 0
+  redOutBlueIn:
+    m_OverrideState: 1
+    m_Value: -10
+  greenOutRedIn:
+    m_OverrideState: 1
+    m_Value: 0
+  greenOutGreenIn:
+    m_OverrideState: 1
+    m_Value: 95
+  greenOutBlueIn:
+    m_OverrideState: 1
+    m_Value: 0
+  blueOutRedIn:
+    m_OverrideState: 0
+    m_Value: -15
+  blueOutGreenIn:
+    m_OverrideState: 0
+    m_Value: -10
+  blueOutBlueIn:
+    m_OverrideState: 1
+    m_Value: 110
 --- !u!114 &-5582777464403071921
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -85,10 +147,10 @@ MonoBehaviour:
   active: 1
   postExposure:
     m_OverrideState: 1
-    m_Value: -0.1
+    m_Value: -0.2
   contrast:
     m_OverrideState: 1
-    m_Value: 1.5
+    m_Value: -15
   colorFilter:
     m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -110,19 +172,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24f077503be6ae942a1e1245dbd53ea9, type: 3}
   m_Name: Bloom
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   quality:
     m_OverrideState: 1
     m_Value: 3
   threshold:
     m_OverrideState: 1
-    m_Value: 1.1
+    m_Value: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.3
   scatter:
     m_OverrideState: 1
-    m_Value: 0.62
+    m_Value: 0.6
   tint:
     m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -164,6 +226,8 @@ MonoBehaviour:
   - {fileID: 6986062045040980557}
   - {fileID: 5082674963290733958}
   - {fileID: 5809831303215131360}
+  - {fileID: -6951985879038505415}
+  - {fileID: -7584103518262567097}
 --- !u!114 &5082674963290733958
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -176,7 +240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b145d2b9ee1ac4f846968484e7485a, type: 3}
   m_Name: ContactShadows
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   quality:
     m_OverrideState: 0
     m_Value: 1
@@ -234,7 +298,7 @@ MonoBehaviour:
     m_Value: 0
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 3
   directLightingStrength:
     m_OverrideState: 1
     m_Value: 0.87
@@ -306,7 +370,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bff652df78c97c4f963064ad1f34619, type: 3}
   m_Name: ColorCurves
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   master:
     m_OverrideState: 1
     m_Value:
@@ -559,7 +623,7 @@ MonoBehaviour:
     m_Value: 1000
   albedo:
     m_OverrideState: 1
-    m_Value: {r: 0.9716981, g: 0, b: 0, a: 1}
+    m_Value: {r: 0.972549, g: 0, b: 0.91139835, a: 1}
   meanFreePath:
     m_OverrideState: 1
     m_Value: 1000000
