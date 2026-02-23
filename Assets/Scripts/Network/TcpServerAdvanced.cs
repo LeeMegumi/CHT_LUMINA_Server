@@ -119,9 +119,37 @@ public class TcpServerAdvanced : MonoBehaviour
             if (msg.action == "WAKEUP") StartCoroutine(main.GotWakeUpAction());
             if (msg.action == "LOTTERY") main.StartLotteryAction();
             if (msg.action == "GETNUMBER") StartCoroutine(main.GETLotteryNumberAction(msg.luckynum));
-            if (msg.action == "TOSSINGFAILED") StartCoroutine(main.TossingFailedAction(msg.luckynum)); 
+            //if (msg.action == "TOSSINGFAILED") 
             if (msg.action == "FREEQA") main.TossingSuccessfulAction(msg.luckynum); //傳遞籤號，同時發送訊息給中華平台。
             if (msg.action == "RESET") main.ServerAllReset();
+
+            if(msg.action == "CoinActionA")
+            {
+                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinAVideoPlayer, CoinFlipGame.instance.coinACanvasGroup, msg.coinState));
+                if (msg.coinState == 0)
+                {
+                    StartCoroutine(main.TossingFailedAction(msg.luckynum));
+                    //硬幣動畫失敗播放後，淡出。
+                }
+            }
+            if (msg.action == "CoinActionB")
+            {
+                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinBVideoPlayer, CoinFlipGame.instance.coinBCanvasGroup, msg.coinState));
+                if (msg.coinState == 0)
+                {
+                    StartCoroutine(main.TossingFailedAction(msg.luckynum));
+                    //硬幣動畫失敗播放後，淡出。
+                }
+            }
+            if (msg.action == "CoinActionC")
+            {
+                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinCVideoPlayer, CoinFlipGame.instance.coinCCanvasGroup, msg.coinState));
+                if (msg.coinState == 0)
+                {
+                    StartCoroutine(main.TossingFailedAction(msg.luckynum));
+                    //硬幣動畫失敗播放後，淡出。
+                }
+            }
         }
     }
     void SendServerStatus(ClientSession session)

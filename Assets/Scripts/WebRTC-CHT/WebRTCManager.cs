@@ -152,7 +152,6 @@ public class WebRTCManager : MonoBehaviour
             audioSource.Play();
             Debug.Log("🔊 已開始播放音訊");
 
-
         }
        
     }
@@ -492,9 +491,9 @@ public class WebRTCManager : MonoBehaviour
                     ChatManager.instance.AddAIMessage(ExtractTextFromResponse("text", message));
                 }
                 
-                if (!(message.Contains("稍等") ||message.Contains("稍後") )&& message.Contains("'speaking_status': 'finished'") && ServerMain.instance.QACount == 0)
+                if (ServerMain.instance.QACount == 0)
                 {
-                    StartCoroutine(ServerMain.instance.EndAction());
+                    
                 }
                 break;
 

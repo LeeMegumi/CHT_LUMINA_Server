@@ -30,6 +30,9 @@ public class ServerMain : MonoBehaviour
     [Header("問答次數")]
     public int QACount;
 
+    [Header("問答倒數系統")]
+    public CountdownBarController CountDownTimer;
+
     [Header("ARD")]
     public ArduinoBasic ARD;
 
@@ -50,36 +53,26 @@ public class ServerMain : MonoBehaviour
     void Start()
     {
         if(instance == null) instance = this;
-        currentStage = Stage.Sleep;
-        //TcpServer Send- update current Stage
-        Lumina_Animtor.IdleLoop = true;
-        QACount = 5;
-        QACountText.text = "剩餘問答次數：" + QACount;
+        _init();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            //TcpServer.SendCommandToAll("To_Tossing_Loop");  
-            Lumina_Animtor.PlaySingleAnimation("HL-G01", returnToIdleLoop: true);
-            Lumina_Animtor.PlaySingleAnimation("HL-G01", false, () =>
-            {
-                //動畫結束後要做的事情
-            }
-            );
-        }
-        if (Input.GetKeyUp(KeyCode.T) || ARD.readMessage == "Coin") 
+        if ((Input.GetKeyUp(KeyCode.T) || ARD.readMessage == "Coin")&& TTS_System.Talkbool())
         {
             ARD.readMessage = "";
-            AvatarSkipConversation();
-            TTS_System.ToggleRecording();
-            if (QACount > 0)
+            if (QACount > 0 || CountDownTimer.remainingTime <= 0)
             {
                 QACount--;
                 QACountText.text = "剩餘問答次數：" + QACount;
-
+                TTS_System.ToggleRecording();
+                AudioPlayer.instance.PlayAudio(0); //Play Coin Talk Audio
+                AvatarSkipConversation();
+            }
+            else
+            {
+                StartCoroutine(ServerMain.instance.EndAction());
             }
         }
         if (Input.GetKeyUp(KeyCode.Y))
@@ -88,8 +81,6 @@ public class ServerMain : MonoBehaviour
         }
         if (Input.GetKeyUp(KeyCode.R))
         {
-            
-            
             TcpServer.SendCommandToAll("RESET");
             ServerAllReset();
         }
@@ -97,12 +88,35 @@ public class ServerMain : MonoBehaviour
         {
            case Stage.FreeQA:
                 //問答中
-                
+                if ((Input.GetKeyUp(KeyCode.T) || ARD.readMessage == "Coin"))
+                {
+                    AvatarSkipConversation();
+                    ARD.readMessage = "";
+                    if (QACount > 0 || CountDownTimer.remainingTime <= 0)
+                    {
+                        QACount--;
+                        QACountText.text = "剩餘問答次數：" + QACount;
+                        TTS_System.ToggleRecording();
+                        AudioPlayer.instance.PlayAudio(0); //Play Coin Talk Audio
+                    }
+                    else
+                    {
+                        StartCoroutine(ServerMain.instance.EndAction());
+                    }
+                }
                 break;
         }
     }
     public void NextStage(Stage nextstage)=> currentStage = nextstage;
 
+    void _init()
+    {
+        CountDownTimer.ResetAndPause(); //問答倒數重製
+        currentStage = Stage.Sleep;
+        Lumina_Animtor.IdleLoop = true;
+        QACount = 5;
+        QACountText.text = "剩餘問答次數：" + QACount;
+    }
     /// <summary>
     /// 重製對話
     /// </summary>
@@ -196,13 +210,13 @@ public class ServerMain : MonoBehaviour
         NextStage(Stage.waitforDeal);
         yield return new WaitForSeconds(audioLength); //等待音檔播放完畢
         TcpServer.SendCommandToAll("SERVERCALLBACK");
-        NextStage(Stage.TossingGame);  //進入擲筊遊戲                                                              
+        NextStage(Stage.TossingGame);  //進入擲筊遊戲
+        UI_TipText.text = "擲筊中！";
+        NextStage(Stage.waitforDeal);
+        UI_Animtor.Play("ToTossingGame");  //UI動畫
+        yield return null; //等待音檔播放完畢
     }
-
-    public void StartTossingGameAction()
-    {
-        
-    }
+    
     /// <summary>
     /// 擲筊失敗後的動作
     /// </summary>
@@ -210,12 +224,16 @@ public class ServerMain : MonoBehaviour
     {
         UI_TipText.text = "很可惜看來這支籤跟妳不是很合，我們重新再抽一支吧！";
         NextStage(Stage.TossingFailed);
+        UI_Animtor.Play("TossingFaild");  //UI動畫
+        
         TossingWallManager.Instance.ClearAll();  //清除閃爍狀態
         int randomIndex = Random.Range(0, LuminaAudio.LuminaAudioClips_TossingFailed.Length);
         float audioLength = LuminaAudio.LuminaAudioClips_TossingFailed[randomIndex].length;
         LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips_TossingFailed[Random.Range(0, randomIndex)]); //嘴型跟音檔。
+
         Lumina_Animtor.PlaySingleAnimation("Re-Q", true); //抽到什麼籤的動畫。
         yield return new WaitForSeconds(audioLength); //等待音檔播放完畢
+        CoinFlipGame.instance.ResetCoins();
         TcpServer.SendCommandToAll("SERVERCALLBACK");  //通知Client端，動畫結束了，可以進入下一步了。
         NextStage(Stage.Lottery);  //進入擲筊遊戲                                                              
         //Canvas 擲筊說明UI
@@ -226,6 +244,7 @@ public class ServerMain : MonoBehaviour
         UI_TipText.text = "讓LUMINA幫你看看第" + LuckyNumber + "是什樣的命運吧～";
         NextStage(Stage.waitforDeal);
         UI_Animtor.Play("TossingSuccessful");  //UI動畫
+        AudioPlayer.instance.PlayAudio(2, 3);
         TossingWallManager.Instance.ConfirmCurrent(LuckyNumber);  //清除閃爍狀態，確認籤詩
         SendLuckyNumToCHT(LuckyNumber);
         Lumina_Animtor.PlaySingleAnimation("HL-E01", true, () => //擲筊成功的動畫。
@@ -235,6 +254,7 @@ public class ServerMain : MonoBehaviour
             UI_Animtor.Play("ToQA");  //UI動畫
             //Canvas 擲筊說明UI
             UI_TipText.text = "LUMINA正在為您解籤！";
+            CountDownTimer.ResetAndStart(); //開始計時
         });
     }
     /// <summary>
@@ -270,6 +290,7 @@ public class ServerMain : MonoBehaviour
         QACount = 5;
         QACountText.text = "剩餘問答次數：" + QACount;
         ChatManager.instance.ClearAllMessages();
+        CoinFlipGame.instance.ResetCoins();
         AvatarClearConversation();
     }
 }

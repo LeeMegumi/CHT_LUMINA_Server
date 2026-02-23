@@ -46,6 +46,10 @@ public class ElevenLabs_VAD : MonoBehaviour
 
     private const string SCRIBE_API_URL = "https://api.elevenlabs.io/v1/speech-to-text";
 
+    [Header("操作防彈跳")]
+    [SerializeField] private float toggleCooldown = 5f; // NEW: 冷卻時間（秒）
+    private float lastToggleTime = -999f;               // NEW: 上一次觸發時間
+
     void Start()
     {
         if (Microphone.devices.Length > 0)
@@ -159,7 +163,20 @@ public class ElevenLabs_VAD : MonoBehaviour
             vadIndicator.sprite = isActive ? vadIndicatorSprites[1] : vadIndicatorSprites[0];
         }
     }
-
+    public bool Talkbool()
+    {
+        if (Time.time - lastToggleTime < toggleCooldown)
+        {
+            float remain = toggleCooldown - (Time.time - lastToggleTime);
+            Debug.Log($"ToggleRecording 冷卻中，剩餘 {remain:F2} 秒");
+            // 如有需要可以在 UI 顯示提醒
+            // UpdateStatus($"請稍候 {remain:F1} 秒再操作");
+            
+            return false;
+        }
+        lastToggleTime = Time.time;
+        return true; 
+    }
     public void ToggleRecording()
     {
         if (isRecording)

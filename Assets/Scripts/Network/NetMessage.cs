@@ -11,4 +11,5 @@ public class NetMessage
     // server -> client
     public string param;
     public int luckynum;
+    public int coinState;
 }
