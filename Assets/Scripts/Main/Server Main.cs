@@ -36,6 +36,11 @@ public class ServerMain : MonoBehaviour
     [Header("ARD")]
     public ArduinoBasic ARD;
 
+    [Header("重製冷卻時間")]
+    public bool isResetting = false;
+    public float constResetCooldown = 5f;
+    public float ResetCooldown;
+
     public enum Stage
     {
         waitforDeal,
@@ -59,51 +64,24 @@ public class ServerMain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if ((Input.GetKeyUp(KeyCode.T) || ARD.readMessage == "Coin")&& TTS_System.Talkbool())
-        {
-            ARD.readMessage = "";
-            if (QACount > 0 || CountDownTimer.remainingTime <= 0)
-            {
-                QACount--;
-                QACountText.text = "剩餘問答次數：" + QACount;
-                TTS_System.ToggleRecording();
-                AudioPlayer.instance.PlayAudio(0); //Play Coin Talk Audio
-                AvatarSkipConversation();
-            }
-            else
-            {
-                StartCoroutine(ServerMain.instance.EndAction());
-            }
-        }
+        TalkDetect();
+        RestCounter();
         if (Input.GetKeyUp(KeyCode.Y))
         {
             AvatarSkipConversation();
         }
-        if (Input.GetKeyUp(KeyCode.R))
+        if (Input.GetKeyUp(KeyCode.R) && !isResetting)
         {
+            isResetting = true;
             TcpServer.SendCommandToAll("RESET");
             ServerAllReset();
         }
+        
         switch (currentStage)
         {
            case Stage.FreeQA:
                 //問答中
-                if ((Input.GetKeyUp(KeyCode.T) || ARD.readMessage == "Coin"))
-                {
-                    AvatarSkipConversation();
-                    ARD.readMessage = "";
-                    if (QACount > 0 || CountDownTimer.remainingTime <= 0)
-                    {
-                        QACount--;
-                        QACountText.text = "剩餘問答次數：" + QACount;
-                        TTS_System.ToggleRecording();
-                        AudioPlayer.instance.PlayAudio(0); //Play Coin Talk Audio
-                    }
-                    else
-                    {
-                        StartCoroutine(ServerMain.instance.EndAction());
-                    }
-                }
+                TalkDetect();
                 break;
         }
     }
@@ -116,6 +94,8 @@ public class ServerMain : MonoBehaviour
         Lumina_Animtor.IdleLoop = true;
         QACount = 5;
         QACountText.text = "剩餘問答次數：" + QACount;
+        ResetCooldown = constResetCooldown;
+        isResetting = false;
     }
     /// <summary>
     /// 重製對話
@@ -250,6 +230,7 @@ public class ServerMain : MonoBehaviour
         Lumina_Animtor.PlaySingleAnimation("HL-E01", true, () => //擲筊成功的動畫。
         {
             //動畫結束後要做的事情
+            ARD.readMessage = "";
             NextStage(Stage.FreeQA);  //進入擲筊遊戲                                                              
             UI_Animtor.Play("ToQA");  //UI動畫
             //Canvas 擲筊說明UI
@@ -267,6 +248,7 @@ public class ServerMain : MonoBehaviour
     {
         NextStage(Stage.End);  //進入喚醒狀態
         UI_Animtor.Play("ToEnd");  //UI動畫
+        yield return new WaitForSeconds(.5F);  //等待截斷的聲音完全靜止
         int randomIndex = Random.Range(0, LuminaAudio.LuminaAudioClips_End.Length);
         float audioLength = LuminaAudio.LuminaAudioClips_End[randomIndex].length;
         LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips_End[randomIndex]); //嘴型跟音檔。
@@ -278,13 +260,34 @@ public class ServerMain : MonoBehaviour
         TcpServer.SendCommandToAll("RESET");
         ServerAllReset();
     }
-
+    void TalkDetect()
+    {
+        if ((Input.GetKeyUp(KeyCode.T) || ARD.readMessage == "Coin") && TTS_System.Talkbool() && !TTS_System.isRecording)
+        {
+            ARD.readMessage = "";
+            if (QACount > 0 && CountDownTimer.remainingTime > 0)
+            {
+                QACount--;
+                QACountText.text = "剩餘問答次數：" + QACount;
+                TTS_System.ToggleRecording();
+                AudioPlayer.instance.PlayAudio(0); //Play Coin Talk Audio
+                AvatarSkipConversation();
+            }
+            else
+            {
+                AvatarSkipConversation();
+                AudioPlayer.instance.PlayAudio(3); //Play Energe Empty 
+                StartCoroutine(EndAction());
+            }
+        }
+    }
     /// <summary>
     /// 重製，並回到Sleep狀態。
     /// </summary>
     public void ServerAllReset()
     {
         currentStage = Stage.Sleep;
+        ARD.readMessage = "";
         Lumina_Animtor.PlaySingleAnimation("Reset",true);
         TossingWallManager.Instance.ClearAll();  //新增閃爍狀態
         QACount = 5;
@@ -292,5 +295,18 @@ public class ServerMain : MonoBehaviour
         ChatManager.instance.ClearAllMessages();
         CoinFlipGame.instance.ResetCoins();
         AvatarClearConversation();
+    }
+
+    void RestCounter()
+    {
+        if (isResetting)
+        {
+            ResetCooldown -= Time.deltaTime;
+            if (ResetCooldown <= 0)
+            {
+                isResetting = false;
+                ResetCooldown = constResetCooldown;
+            }
+        }
     }
 }

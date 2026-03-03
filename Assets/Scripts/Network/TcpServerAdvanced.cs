@@ -121,8 +121,11 @@ public class TcpServerAdvanced : MonoBehaviour
             if (msg.action == "GETNUMBER") StartCoroutine(main.GETLotteryNumberAction(msg.luckynum));
             //if (msg.action == "TOSSINGFAILED") 
             if (msg.action == "FREEQA") main.TossingSuccessfulAction(msg.luckynum); //傳遞籤號，同時發送訊息給中華平台。
-            if (msg.action == "RESET") main.ServerAllReset();
-
+            if (msg.action == "RESET")
+            {
+                main.isResetting = true;
+                main.ServerAllReset();
+            }
             if(msg.action == "CoinActionA")
             {
                 StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinAVideoPlayer, CoinFlipGame.instance.coinACanvasGroup, msg.coinState));

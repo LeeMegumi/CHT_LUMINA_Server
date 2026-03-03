@@ -12,7 +12,7 @@ public class UIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyUp(KeyCode.A))
+        /*if (Input.GetKeyUp(KeyCode.A))
         {
             webRTCManager.SendMessage("哈囉", "chat");
         }
@@ -25,6 +25,6 @@ public class UIController : MonoBehaviour
         {
             //webRTCManager.SendMessage("那根據這支籤的內容，我適合當廚師嗎?", "chat");
             webRTCManager.SendMessage("How old are you?", "chat");
-        }
+        }*/
     }
 }

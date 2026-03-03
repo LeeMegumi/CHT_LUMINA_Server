@@ -10,7 +10,7 @@ public class CountdownBarController : MonoBehaviour
     public Image countdownImage;
 
     public float remainingTime;
-    private bool isCounting = false;
+    public bool isCounting = false;
 
     void Start()
     {
@@ -20,8 +20,8 @@ public class CountdownBarController : MonoBehaviour
         {
             // 確保 Image 是 Filled + Horizontal
             countdownImage.type = Image.Type.Filled;
-            countdownImage.fillMethod = Image.FillMethod.Horizontal;
-            countdownImage.fillOrigin = (int)Image.OriginHorizontal.Left; // 從右邊被裁掉
+            countdownImage.fillMethod = Image.FillMethod.Vertical;
+            countdownImage.fillOrigin = (int)Image.OriginVertical.Bottom; // 從右邊被裁掉
             countdownImage.fillAmount = 1f; // 一開始滿格
         }
 

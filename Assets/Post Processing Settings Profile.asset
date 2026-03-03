@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da5ab44aadfb1804db5fd470983ac1b8, type: 3}
   m_Name: LiftGammaGain
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   lift:
     m_OverrideState: 0
     m_Value: {x: 1, y: 1, z: 1, w: 0}
   gamma:
     m_OverrideState: 1
-    m_Value: {x: 0.97, y: 0.94, z: 1, w: -0.15624999}
+    m_Value: {x: 0.97, y: 0.94, z: 1, w: -0.09923525}
   gain:
     m_OverrideState: 0
     m_Value: {x: 1, y: 1, z: 1, w: 0}
@@ -43,22 +43,22 @@ MonoBehaviour:
     m_Value: 0
   toeStrength:
     m_OverrideState: 1
-    m_Value: 0.15
+    m_Value: 0.055
   toeLength:
-    m_OverrideState: 0
-    m_Value: 0.52
+    m_OverrideState: 1
+    m_Value: 0.392
   shoulderStrength:
     m_OverrideState: 1
-    m_Value: 0.25
+    m_Value: 0.551
   shoulderLength:
     m_OverrideState: 1
-    m_Value: 0.7
+    m_Value: 1.14
   shoulderAngle:
     m_OverrideState: 1
-    m_Value: 0.7
+    m_Value: 0.55
   gamma:
-    m_OverrideState: 0
-    m_Value: 1.1
+    m_OverrideState: 1
+    m_Value: 1.11
   lutTexture:
     m_OverrideState: 0
     m_Value: {fileID: 0}
@@ -104,7 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7649d9368d3a5c4ab8ad01a63e04962, type: 3}
   m_Name: ChannelMixer
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   redOutRedIn:
     m_OverrideState: 1
     m_Value: 110
@@ -147,10 +147,10 @@ MonoBehaviour:
   active: 1
   postExposure:
     m_OverrideState: 1
-    m_Value: -0.2
+    m_Value: 0.65
   contrast:
     m_OverrideState: 1
-    m_Value: -15
+    m_Value: -34.3
   colorFilter:
     m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -159,7 +159,7 @@ MonoBehaviour:
     m_Value: 0
   saturation:
     m_OverrideState: 1
-    m_Value: 7
+    m_Value: 47.3
 --- !u!114 &-2063939069867652515
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -219,7 +219,6 @@ MonoBehaviour:
   m_Name: Post Processing Settings Profile
   m_EditorClassIdentifier: 
   components:
-  - {fileID: -2063939069867652515}
   - {fileID: -5582777464403071921}
   - {fileID: -7489133436579434587}
   - {fileID: 5487520544463300158}
@@ -228,6 +227,7 @@ MonoBehaviour:
   - {fileID: 5809831303215131360}
   - {fileID: -6951985879038505415}
   - {fileID: -7584103518262567097}
+  - {fileID: -2063939069867652515}
 --- !u!114 &5082674963290733958
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -240,7 +240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b145d2b9ee1ac4f846968484e7485a, type: 3}
   m_Name: ContactShadows
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   quality:
     m_OverrideState: 0
     m_Value: 1
@@ -298,7 +298,7 @@ MonoBehaviour:
     m_Value: 0
   intensity:
     m_OverrideState: 1
-    m_Value: 3
+    m_Value: 2.3
   directLightingStrength:
     m_OverrideState: 1
     m_Value: 0.87
@@ -391,8 +391,8 @@ MonoBehaviour:
           inWeight: 0
           outWeight: 0
         - serializedVersion: 3
-          time: 0.29881656
-          value: 0.26415092
+          time: 0.42520615
+          value: 0.35897416
           inSlope: 1.0843267
           outSlope: 1.0843267
           tangentMode: 0

@@ -49,7 +49,7 @@ Material:
   - DistortionVectors
   - MOTIONVECTORS
   - TransparentDepthPostpass
-  - TransparentBackface
+  - TransparentDepthPrepass
   - RayTracingPrepass
   m_LockedProperties: 
   m_SavedProperties:
@@ -258,7 +258,7 @@ Material:
     - _BumpScale: 1
     - _CoatMask: 1
     - _CullMode: 0
-    - _CullModeForward: 0
+    - _CullModeForward: 2
     - _Cutoff: 0
     - _DebugMode: 0
     - _DepthOffsetEnable: 0
@@ -292,7 +292,7 @@ Material:
     - _DstBlend2: 10
     - _EmissiveColorMode: 1
     - _EmissiveExposureWeight: 1
-    - _EmissiveIntensity: 1.1
+    - _EmissiveIntensity: 1.4685864
     - _EmissiveIntensityUnit: 0
     - _EnableBlendModePreserveSpecularLighting: 0
     - _EnableFogOnTransparent: 1
@@ -383,10 +383,10 @@ Material:
     - _Thickness: 0
     - _TransmissionEnable: 0
     - _TransmissionMask: 1
-    - _TransparentBackfaceEnable: 0
+    - _TransparentBackfaceEnable: 1
     - _TransparentCullMode: 2
     - _TransparentDepthPostpassEnable: 0
-    - _TransparentDepthPrepassEnable: 1
+    - _TransparentDepthPrepassEnable: 0
     - _TransparentSortPriority: 0
     - _TransparentWritingMotionVec: 1
     - _TransparentZWrite: 1
@@ -416,8 +416,8 @@ Material:
     - _DiffusionProfileAsset: {r: 1298.3158, g: 1018.97455, b: -4.5102023e-18, a: 4.4650893e+20}
     - _DoubleSidedConstants: {r: -1, g: -1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissiveColor: {r: 1.1, g: 1.0643276, b: 1.0429245, a: 1.1}
-    - _EmissiveColorLDR: {r: 1, g: 0.9856073, b: 0.9768364, a: 1}
+    - _EmissiveColor: {r: 1.1, g: 1.0643275, b: 1.0429245, a: 1.4685864}
+    - _EmissiveColorLDR: {r: 0.88031507, g: 0.86755514, b: 0.8597793, a: 1}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _InvertColor: {r: 1, g: 1, b: 1, a: 1}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
@@ -425,7 +425,7 @@ Material:
     - _RimColor: {r: 0, g: 0, b: 0, a: 1}
     - _ShadeColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
+    - _ThicknessRemap: {r: 0.5879828, g: 0.8862661, b: 0, a: 0}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
