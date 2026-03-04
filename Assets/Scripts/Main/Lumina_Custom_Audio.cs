@@ -17,4 +17,10 @@ public class Lumina_Custom_Audio : MonoBehaviour
         uLipsync_Audiosource.Play();
         uLipsync_Audiosource.loop = false;
     }
+
+    public void AudioStop()
+    {
+        uLipsync_Audiosource.Stop();
+        customAudiosource.Stop();
+    }
 }

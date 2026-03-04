@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using static ServerMain;
 using static WebRTCManager;
 using Random = UnityEngine.Random;
 
@@ -51,9 +52,21 @@ public class ServerMain : MonoBehaviour
         TossingFailed,
         TossingSuccessful,
         FreeQA,
-        End
+        End,
+
+        ChatMode
+
     }
     public Stage currentStage;
+
+    public enum InteractMode
+    {
+        Normal,
+        Safe
+    }
+    public InteractMode interactMode;
+
+    public GameObject SafeTag;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -65,21 +78,54 @@ public class ServerMain : MonoBehaviour
     void Update()
     {
         TalkDetect();
-        RestCounter();
+        RestCounter(); //防止快速重製
         if (Input.GetKeyUp(KeyCode.Y))
         {
             AvatarSkipConversation();
-        }
+        } //Skip
         if (Input.GetKeyUp(KeyCode.R) && !isResetting)
         {
+            AvatarSkipConversation();
+            LuminaAudio.AudioStop();
             isResetting = true;
             TcpServer.SendCommandToAll("RESET");
+            TcpServer.SendCommandToAll("NORMALMODE");
             ServerAllReset();
-        }
+        } //Reset
+        if (Input.GetKeyUp(KeyCode.C))
+        {
+            TcpServer.SendCommandToAll("RESET");
+            ServerAllReset();
+            NextStage(Stage.ChatMode);
+            QACount = int.MaxValue;
+            UI_Animtor.Play("Chatting");
+            TcpServer.SendCommandToAll("CHAT");
+        } 
+        //Chat
+        if (Input.GetKeyUp(KeyCode.S))
+        {
+            interactMode = interactMode == InteractMode.Normal ? InteractMode.Safe : InteractMode.Normal;
+            SafeTag.SetActive(interactMode == InteractMode.Normal ? false : true);
+            if(interactMode == InteractMode.Normal)
+            {
+                TcpServer.SendCommandToAll("NORMALMODE");
+            }
+            else
+            {
+                TcpServer.SendCommandToAll("SAFEMODE");
+            }
+            //QACount = int.MaxValue;
+        } 
+        //Safe
         
         switch (currentStage)
         {
            case Stage.FreeQA:
+                //問答中
+                TalkDetect();
+                break;
+
+            case Stage.ChatMode:
                 //問答中
                 TalkDetect();
                 break;
@@ -89,6 +135,8 @@ public class ServerMain : MonoBehaviour
 
     void _init()
     {
+        interactMode = InteractMode.Normal;
+        TcpServer.SendCommandToAll("NORMALMODE");
         CountDownTimer.ResetAndPause(); //問答倒數重製
         currentStage = Stage.Sleep;
         Lumina_Animtor.IdleLoop = true;
@@ -96,6 +144,8 @@ public class ServerMain : MonoBehaviour
         QACountText.text = "剩餘問答次數：" + QACount;
         ResetCooldown = constResetCooldown;
         isResetting = false;
+
+        TcpServer.SendCommandToAll("RESET");
     }
     /// <summary>
     /// 重製對話

@@ -34,12 +34,6 @@ public class ElevenLabs_VAD : MonoBehaviour
     [SerializeField] private float vadStopTime = 2.5f; // 靜音多久後自動停止（秒）
     [SerializeField] private bool dropSilencePart = true; // 是否裁掉最後的靜音段
 
-    [Header("麥克風重連設定")]
-    [SerializeField] private float micHealthCheckInterval = 1.0f;  // 每幾秒檢查一次麥克風健康
-    [SerializeField] private float micStuckPositionTimeout = 3.0f; // position 幾秒沒變化視為斷線
-    [SerializeField] private int maxReconnectAttempts = 3;         // 最多嘗試重連次數
-    [SerializeField] private float reconnectDelay = 1.5f;          // 每次重連間隔（秒）
-
     private AudioClip recordedClip;
     private string microphoneDevice;
     public bool isRecording = false;
@@ -47,14 +41,6 @@ public class ElevenLabs_VAD : MonoBehaviour
     private float? vadStopBegin = null;
     private float lastVadCheckTime = 0f;
     private int recordingStartPosition = 0;
-
-    // 麥克風重連相關
-    private float lastMicHealthCheckTime = 0f;
-    private int lastKnownMicPosition = -1;
-    private float lastPositionChangeTime = 0f;
-    private bool isMicDisconnected = false;
-    private int reconnectAttemptCount = 0;
-    private bool isReconnecting = false;
 
     private const string SCRIBE_API_URL = "https://api.elevenlabs.io/v1/speech-to-text";
 
@@ -91,16 +77,6 @@ public class ElevenLabs_VAD : MonoBehaviour
     {
         if (!isRecording || !useVAD) return;
 
-        // ── 麥克風健康檢查 ──
-        if (Time.time - lastMicHealthCheckTime >= micHealthCheckInterval)
-        {
-            lastMicHealthCheckTime = Time.time;
-            CheckMicrophoneHealth();
-        }
-
-        // 如果麥克風已斷線，不繼續做 VAD
-        if (isMicDisconnected) return;
-
         // 定期執行 VAD 檢測
         if (Time.time - lastVadCheckTime >= vadUpdateRate)
         {
@@ -117,181 +93,6 @@ public class ElevenLabs_VAD : MonoBehaviour
                 Debug.Log($"檢測到 {silenceDuration:F2} 秒靜音，自動停止錄音");
                 StopRecording();
             }
-        }
-    }
-
-    // ════════════════════════════════════════════
-    //  麥克風健康檢查與重連
-    // ════════════════════════════════════════════
-
-    /// <summary>檢查目前 microphoneDevice 是否仍在系統裝置清單中</summary>
-    bool IsMicrophoneConnected(string deviceName)
-    {
-        foreach (string d in Microphone.devices)
-        {
-            if (d == deviceName) return true;
-        }
-        return false;
-    }
-    /// <summary>在錄音中定期呼叫，偵測 position 是否停止增長（表示斷線）</summary>
-    void CheckMicrophoneHealth()
-    {
-        // 先確認裝置是否還在清單
-        if (!IsMicrophoneConnected(microphoneDevice))
-        {
-            Debug.LogWarning($"[Mic] 裝置 '{microphoneDevice}' 已從系統消失！");
-            HandleMicDisconnect("麥克風裝置已拔除");
-            return;
-        }
-
-        int currentPos = Microphone.GetPosition(microphoneDevice);
-
-        // GetPosition 回傳 -1 或與上次完全相同超過 timeout → 視為異常
-        if (currentPos < 0)
-        {
-            Debug.LogWarning("[Mic] GetPosition 回傳 -1，麥克風可能斷線");
-            HandleMicDisconnect("麥克風訊號中斷 (pos = -1)");
-            return;
-        }
-
-        if (currentPos != lastKnownMicPosition)
-        {
-            // position 有在動，正常
-            lastKnownMicPosition = currentPos;
-            lastPositionChangeTime = Time.time;
-        }
-        else
-        {
-            // position 卡住，計時
-            float stuck = Time.time - lastPositionChangeTime;
-            if (stuck >= micStuckPositionTimeout)
-            {
-                Debug.LogWarning($"[Mic] Position 已 {stuck:F1} 秒未變化，視為斷線");
-                HandleMicDisconnect($"麥克風無訊號超過 {micStuckPositionTimeout} 秒");
-            }
-        }
-    }
-    /// <summary>斷線處理：停止錄音狀態並啟動重連流程</summary>
-    void HandleMicDisconnect(string reason)
-    {
-        if (isMicDisconnected) return; // 避免重複觸發
-
-        isMicDisconnected = true;
-        Debug.LogError($"[Mic] 斷線原因：{reason}");
-        UpdateStatus($"⚠ 麥克風斷線：{reason}，嘗試重連...");
-
-        // 安全地結束現有錄音（不送 API，直接清理）
-        if (Microphone.IsRecording(microphoneDevice))
-        {
-            Microphone.End(microphoneDevice);
-        }
-
-        // 重置 UI 指示
-        if (vadIndicator != null)
-        {
-            vadIndicator.sprite = vadIndicatorSprites[0];
-            TalkLight_Animator.Play("Talk_Disable");
-        }
-
-        reconnectAttemptCount = 0;
-        StartCoroutine(ReconnectCoroutine());
-    }
-    /// <summary>依設定間隔不斷嘗試重連，直到成功或超過最大次數</summary>
-    IEnumerator ReconnectCoroutine()
-    {
-        isReconnecting = true;
-        recordButton.interactable = false;
-
-        while (reconnectAttemptCount < maxReconnectAttempts)
-        {
-            reconnectAttemptCount++;
-            UpdateStatus($"🔄 重連中... ({reconnectAttemptCount}/{maxReconnectAttempts})");
-            Debug.Log($"[Mic] 重連嘗試 {reconnectAttemptCount}/{maxReconnectAttempts}");
-
-            yield return new WaitForSeconds(reconnectDelay);
-
-            // 重新掃描裝置清單
-            string[] devices = Microphone.devices;
-            if (devices.Length == 0)
-            {
-                Debug.LogWarning("[Mic] 仍找不到任何麥克風裝置");
-                continue;
-            }
-
-            // 優先找回原本的裝置；找不到就用第一個可用裝置
-            string newDevice = microphoneDevice;
-            bool foundOriginal = false;
-            foreach (string d in devices)
-            {
-                if (d == microphoneDevice) { foundOriginal = true; break; }
-            }
-            if (!foundOriginal)
-            {
-                newDevice = devices[0];
-                Debug.Log($"[Mic] 原裝置未找回，改用：{newDevice}");
-            }
-
-            // 嘗試測試錄音（短暫 Start 確認裝置可用）
-            AudioClip testClip = Microphone.Start(newDevice, false, 1, sampleRate);
-            yield return new WaitForSeconds(0.3f);
-            int testPos = Microphone.GetPosition(newDevice);
-            Microphone.End(newDevice);
-
-            if (testPos > 0)
-            {
-                // 重連成功
-                microphoneDevice = newDevice;
-                currentMicname.text = "Mic Name : " + microphoneDevice;
-                isMicDisconnected = false;
-                isReconnecting = false;
-                reconnectAttemptCount = 0;
-                lastPositionChangeTime = Time.time;
-                lastKnownMicPosition = 0;
-                recordButton.interactable = true;
-
-                // 若原本正在錄音，自動恢復錄音
-                if (isRecording)
-                {
-                    Debug.Log("[Mic] 重連成功，恢復錄音");
-                    UpdateStatus("✅ 麥克風已重連，繼續錄音");
-                    RestartRecordingAfterReconnect();
-                }
-                else
-                {
-                    UpdateStatus("✅ 麥克風已重連，準備就緒");
-                }
-                yield break;
-            }
-            else
-            {
-                Debug.LogWarning($"[Mic] 重連嘗試 {reconnectAttemptCount} 失敗（pos={testPos}）");
-            }
-        }
-
-        // 超過最大重連次數
-        isRecording = false;
-        isReconnecting = false;
-        UpdateStatus("❌ 麥克風重連失敗，請手動重新插上裝置後按下「重新整理」");
-        UpdateButtonText();
-        recordButton.interactable = true; // 仍開放讓使用者手動觸發
-        Debug.LogError("[Mic] 超過最大重連次數，放棄重連");
-    }
-    /// <summary>重連成功後，重新啟動錄音（保持 isRecording = true 的狀態）</summary>
-    void RestartRecordingAfterReconnect()
-    {
-        isVoiceDetected = false;
-        vadStopBegin = null;
-        lastVadCheckTime = Time.time;
-        lastPositionChangeTime = Time.time;
-        lastKnownMicPosition = 0;
-
-        recordedClip = Microphone.Start(microphoneDevice, false, maxRecordingTime, sampleRate);
-        recordingStartPosition = 0;
-
-        if (vadIndicator != null)
-        {
-            vadIndicator.sprite = vadIndicatorSprites[1];
-            TalkLight_Animator.Play("Talk_Active");
         }
     }
     void CheckVoiceActivity()
