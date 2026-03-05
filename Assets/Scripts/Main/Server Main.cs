@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static ServerMain;
 using static WebRTCManager;
@@ -55,7 +56,6 @@ public class ServerMain : MonoBehaviour
         End,
 
         ChatMode
-
     }
     public Stage currentStage;
 
@@ -77,8 +77,12 @@ public class ServerMain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        TalkDetect();
+        //TalkDetect();
         RestCounter(); //防止快速重製
+        if(Input.GetKeyUp(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(0); //重新載入 
+        } 
         if (Input.GetKeyUp(KeyCode.Y))
         {
             AvatarSkipConversation();
@@ -91,6 +95,7 @@ public class ServerMain : MonoBehaviour
             TcpServer.SendCommandToAll("RESET");
             TcpServer.SendCommandToAll("NORMALMODE");
             ServerAllReset();
+            UI_TipText.text = "LUMINA待機中！";   //Canvas 擲筊說明UI
         } //Reset
         if (Input.GetKeyUp(KeyCode.C))
         {
@@ -100,6 +105,7 @@ public class ServerMain : MonoBehaviour
             QACount = int.MaxValue;
             UI_Animtor.Play("Chatting");
             TcpServer.SendCommandToAll("CHAT");
+            UI_TipText.text = "與LUMINA自由問答中！";   //Canvas 擲筊說明UI
         } 
         //Chat
         if (Input.GetKeyUp(KeyCode.S))
@@ -114,7 +120,6 @@ public class ServerMain : MonoBehaviour
             {
                 TcpServer.SendCommandToAll("SAFEMODE");
             }
-            //QACount = int.MaxValue;
         } 
         //Safe
         
@@ -136,6 +141,7 @@ public class ServerMain : MonoBehaviour
     void _init()
     {
         interactMode = InteractMode.Normal;
+        SafeTag.SetActive(interactMode == InteractMode.Normal ? false : true);
         TcpServer.SendCommandToAll("NORMALMODE");
         CountDownTimer.ResetAndPause(); //問答倒數重製
         currentStage = Stage.Sleep;
@@ -200,6 +206,7 @@ public class ServerMain : MonoBehaviour
     /// </summary>
     public IEnumerator GotWakeUpAction()
     {
+        if(currentStage != Stage.Sleep) yield break; //如果不在Sleep狀態，則不執行喚醒動作
         NextStage(Stage.Opening);  //進入喚醒狀態
         AvatarSkipConversation();
         float audioLength = LuminaAudio.LuminaAudioClip_Open.length;
@@ -252,7 +259,7 @@ public class ServerMain : MonoBehaviour
     /// </summary>
     public IEnumerator TossingFailedAction(int LuckyNumber)
     {
-        UI_TipText.text = "很可惜看來這支籤跟妳不是很合，我們重新再抽一支吧！";
+        UI_TipText.text = "很可惜這支籤跟你不是很合，讓我們重新再抽一支！";
         NextStage(Stage.TossingFailed);
         UI_Animtor.Play("TossingFaild");  //UI動畫
         
@@ -345,6 +352,9 @@ public class ServerMain : MonoBehaviour
         ChatManager.instance.ClearAllMessages();
         CoinFlipGame.instance.ResetCoins();
         AvatarClearConversation();
+        interactMode = InteractMode.Normal;
+        SafeTag.SetActive(interactMode == InteractMode.Normal ? false : true);
+        CountDownTimer.ResetAndPause(); //問答倒數重製
     }
 
     void RestCounter()

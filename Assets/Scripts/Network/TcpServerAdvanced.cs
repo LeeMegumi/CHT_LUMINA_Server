@@ -128,7 +128,7 @@ public class TcpServerAdvanced : MonoBehaviour
             }
             if(msg.action == "CoinActionA")
             {
-                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinAVideoPlayer, CoinFlipGame.instance.coinACanvasGroup, msg.coinState));
+                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinAVideoPlayer, CoinFlipGame.instance.coinAAudioSource, CoinFlipGame.instance.coinACanvasGroup, msg.coinState));
                 if (msg.coinState == 0)
                 {
                     StartCoroutine(main.TossingFailedAction(msg.luckynum));
@@ -137,7 +137,7 @@ public class TcpServerAdvanced : MonoBehaviour
             }
             if (msg.action == "CoinActionB")
             {
-                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinBVideoPlayer, CoinFlipGame.instance.coinBCanvasGroup, msg.coinState));
+                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinBVideoPlayer, CoinFlipGame.instance.coinBAudioSource, CoinFlipGame.instance.coinBCanvasGroup, msg.coinState));
                 if (msg.coinState == 0)
                 {
                     StartCoroutine(main.TossingFailedAction(msg.luckynum));
@@ -146,7 +146,7 @@ public class TcpServerAdvanced : MonoBehaviour
             }
             if (msg.action == "CoinActionC")
             {
-                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinCVideoPlayer, CoinFlipGame.instance.coinCCanvasGroup, msg.coinState));
+                StartCoroutine(CoinFlipGame.instance.ShowCoinResult(CoinFlipGame.instance.coinCVideoPlayer, CoinFlipGame.instance.coinBAudioSource,CoinFlipGame.instance.coinCCanvasGroup, msg.coinState));
                 if (msg.coinState == 0)
                 {
                     StartCoroutine(main.TossingFailedAction(msg.luckynum));
