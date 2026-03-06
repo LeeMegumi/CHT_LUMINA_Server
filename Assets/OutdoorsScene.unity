@@ -19883,10 +19883,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleAnimations:
-  - SB01
-  - SB02
-  - SB03
-  - SB04
+  - SL-1 Final
+  - SL-2 Final
+  - SL-3 Final
   crossFadeDuration: 0.3
 --- !u!114 &9179958769567864397
 MonoBehaviour:

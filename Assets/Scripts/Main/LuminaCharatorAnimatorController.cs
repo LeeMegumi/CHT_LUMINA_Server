@@ -9,7 +9,7 @@ public class LuminaCharatorAnimatorController : MonoBehaviour
     private bool idleLoop = false;
 
     // 待機動畫名稱陣列
-    public string[] idleAnimations = { "SB01", "SB02", "SB03", "SB04" };
+    public string[] idleAnimations;
 
     // 使用 Hash 提升效能
     private int[] idleAnimationHashes;
@@ -33,6 +33,8 @@ public class LuminaCharatorAnimatorController : MonoBehaviour
         {
             idleAnimationHashes[i] = Animator.StringToHash(idleAnimations[i]);
         }
+
+        PlaySingleAnimation("W-2 Final", true);
     }
 
     // 設定待機循環開關
