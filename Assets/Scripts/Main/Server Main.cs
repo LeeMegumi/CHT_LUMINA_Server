@@ -106,6 +106,8 @@ public class ServerMain : MonoBehaviour
             UI_Animtor.Play("Chatting");
             TcpServer.SendCommandToAll("CHAT");
             UI_TipText.text = "與LUMINA自由問答中！";   //Canvas 擲筊說明UI
+            Lumina_Animtor.NormalIdleLoop = true;
+            Lumina_Animtor.PlaySingleAnimation("W-2 Final", true, null, LuminaCharatorAnimatorController.LoopMode.NormalIdle);
         } 
         //Chat
         if (Input.GetKeyUp(KeyCode.S))
@@ -145,13 +147,14 @@ public class ServerMain : MonoBehaviour
         TcpServer.SendCommandToAll("NORMALMODE");
         CountDownTimer.ResetAndPause(); //問答倒數重製
         currentStage = Stage.Sleep;
-        Lumina_Animtor.IdleLoop = true;
+        
         QACount = 5;
         QACountText.text = "剩餘問答次數：" + QACount;
         ResetCooldown = constResetCooldown;
         isResetting = false;
-
         TcpServer.SendCommandToAll("RESET");
+        Lumina_Animtor.SleepIdleLoop = true;
+        Lumina_Animtor.PlaySingleAnimation("W-2 Final", true, null, LuminaCharatorAnimatorController.LoopMode.SleepIdle);
     }
     /// <summary>
     /// 重製對話
@@ -211,7 +214,8 @@ public class ServerMain : MonoBehaviour
         AvatarSkipConversation();
         float audioLength = LuminaAudio.LuminaAudioClip_Open.length;
         LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClip_Open); //嘴型跟音檔。
-        Lumina_Animtor.PlaySingleAnimation("OP-01", true);
+        ChatManager.instance.AddAIMessage("人工智慧通玄理，命運未來啟鴻圖，歡迎來到抽籤未來！");
+        Lumina_Animtor.PlaySingleAnimation("OP-01", returnToLoop: true, returnLoopMode: LuminaCharatorAnimatorController.LoopMode.NormalIdle);
         UI_Animtor.Play("SleepToOpen");  //UI動畫
         yield return new WaitForSeconds(audioLength); //等待音檔播放完畢
         TcpServer.SendCommandToAll("SERVERCALLBACK");  //通知Client端，動畫結束了，可以進入下一步了。
@@ -224,14 +228,7 @@ public class ServerMain : MonoBehaviour
     public void StartLotteryAction()
     {
         UI_TipText.text = "搖啊搖，搖到什麼籤～";
-        Lumina_Animtor.PlaySingleAnimation("HL-C00", true, () => //抽籤動畫。
-        {
-            //動畫結束後要做的事情
-            //LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips[0]); //嘴型跟音檔。
-            //ToStage(1); //進入擲筊環節
-            //TcpServer.SendCommandToAll("Tossing");  //打開擲筊設備
-            //Canvas 擲筊說明UI
-        });
+        Lumina_Animtor.PlaySingleAnimation("HL-C00", returnToLoop: true, returnLoopMode: LuminaCharatorAnimatorController.LoopMode.NormalIdle); //搖晃籤筒的動畫
     }
     /// <summary>
     /// 抽到籤號後，提醒搖晃設備擲筊
@@ -242,8 +239,22 @@ public class ServerMain : MonoBehaviour
         TossingWallManager.Instance.SetCheckingNumber(LuckyNumber);  //新增閃爍狀態
         int randomIndex = Random.Range(0, LuminaAudio.LuminaAudioClips_Tossing.Length);
         float audioLength = LuminaAudio.LuminaAudioClips_Tossing[randomIndex].length;
-        LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips_Tossing[Random.Range(0, randomIndex)]); //嘴型跟音檔。
-        Lumina_Animtor.PlaySingleAnimation("HL-C02", true); //抽到什麼籤的動畫。
+        LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips_Tossing[randomIndex]); //嘴型跟音檔。
+        switch(randomIndex)
+        {
+            case 0:
+                ChatManager.instance.AddAIMessage("現在，你已經抽出了一支籤，但這支籤是不是屬於你，我們還需要擲筊確認。深呼吸集中精神，請再次搖動手中的道具！");
+                break;
+            case 1:
+                ChatManager.instance.AddAIMessage("好像有一隻籤回應了你的呼喚喔，但我們還要再確認是否屬於你的命運，請使用籤之呼吸全集中，再次搖動手中的道具！");
+                break;
+            case 2:
+                ChatManager.instance.AddAIMessage("你已經抽出一支籤！但是先別急！這支籤是不是「命中注定屬於你」，還需要擲筊來認證，請再搖一下手中的道具～");
+                break;
+        }
+
+        Lumina_Animtor.PlaySingleAnimation("HL-C02", returnToLoop: true, returnLoopMode: LuminaCharatorAnimatorController.LoopMode.NormalIdle); //抽到什麼籤的動畫。
+
         NextStage(Stage.waitforDeal);
         yield return new WaitForSeconds(audioLength); //等待音檔播放完畢
         TcpServer.SendCommandToAll("SERVERCALLBACK");
@@ -262,13 +273,26 @@ public class ServerMain : MonoBehaviour
         UI_TipText.text = "很可惜這支籤跟你不是很合，讓我們重新再抽一支！";
         NextStage(Stage.TossingFailed);
         UI_Animtor.Play("TossingFaild");  //UI動畫
-        
+        Lumina_Animtor.PlaySingleAnimation("HL-F12", returnToLoop: true, returnLoopMode: LuminaCharatorAnimatorController.LoopMode.NormalIdle); //抽到什麼籤的動畫。
+
         TossingWallManager.Instance.ClearAll();  //清除閃爍狀態
         int randomIndex = Random.Range(0, LuminaAudio.LuminaAudioClips_TossingFailed.Length);
         float audioLength = LuminaAudio.LuminaAudioClips_TossingFailed[randomIndex].length;
-        LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips_TossingFailed[Random.Range(0, randomIndex)]); //嘴型跟音檔。
+        LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips_TossingFailed[randomIndex]); //嘴型跟音檔。
+        switch(randomIndex)
+        {
+            case 0:
+                ChatManager.instance.AddAIMessage("沒關係，這只是你心中所問之事還沒有上達天聽或不夠清晰完整，請在心裡重新默念一次之後就可以了，請貴客再次搖動手中道具吧。！");
+                break;
+            case 1:
+                ChatManager.instance.AddAIMessage("沒關係，這只是你心中所問之事還沒有上達天聽或不夠清晰完整，請在心裡重新默念一次之後就可以了，請貴客再次搖動手中道具吧！");
+                break;
+            case 2:
+                ChatManager.instance.AddAIMessage("欸…上面已讀不回？等等，那個微笑，很微妙欸～不是拒絕，但也還沒答應！ 這是「再試一次看看」的臉，讓我們再抽一次吧！ ");
+                break;
+        }
 
-        Lumina_Animtor.PlaySingleAnimation("Re-Q", true); //抽到什麼籤的動畫。
+        Lumina_Animtor.PlaySingleAnimation("Re-Q", returnToLoop: true, returnLoopMode: LuminaCharatorAnimatorController.LoopMode.NormalIdle); //抽到什麼籤的動畫。
         yield return new WaitForSeconds(audioLength); //等待音檔播放完畢
         CoinFlipGame.instance.ResetCoins();
         TcpServer.SendCommandToAll("SERVERCALLBACK");  //通知Client端，動畫結束了，可以進入下一步了。
@@ -278,13 +302,14 @@ public class ServerMain : MonoBehaviour
     }
     public void TossingSuccessfulAction(int LuckyNumber)
     {
-        UI_TipText.text = "讓LUMINA幫你看看第" + LuckyNumber + "是什樣的命運吧～";
+        UI_TipText.text = "讓LUMINA幫你看看第" + LuckyNumber + "籤是什樣的命運吧～";
         NextStage(Stage.waitforDeal);
         UI_Animtor.Play("TossingSuccessful");  //UI動畫
         AudioPlayer.instance.PlayAudio(2, 3);
         TossingWallManager.Instance.ConfirmCurrent(LuckyNumber);  //清除閃爍狀態，確認籤詩
         SendLuckyNumToCHT(LuckyNumber);
         Lumina_Animtor.PlaySingleAnimation("HL-E01", true, () => //擲筊成功的動畫。
+
         {
             //動畫結束後要做的事情
             ARD.readMessage = "";
@@ -293,13 +318,18 @@ public class ServerMain : MonoBehaviour
             //Canvas 擲筊說明UI
             UI_TipText.text = "LUMINA正在為您解籤！";
             CountDownTimer.ResetAndStart(); //開始計時
-        });
+        }, returnLoopMode: LuminaCharatorAnimatorController.LoopMode.NormalIdle);
     }
     /// <summary>
     /// 傳送籤號給CHT AI後台
     /// </summary>
     /// <param name="luckynumData"></param>
-    public void SendLuckyNumToCHT(int luckynumData)=> WebRTCManager.instance.SendMessage("我抽到了第" + luckynumData + "籤，可以幫我解籤嗎?", "chat");
+    public void SendLuckyNumToCHT(int luckynumData)
+    {
+        string NumberText = FontConvert.NumberToChinese(luckynumData);
+        WebRTCManager.instance.SendMessage("我抽到了第" + NumberText + "籤，可以幫我解籤嗎?", "chat");
+
+    }
 
     public IEnumerator EndAction()
     {
@@ -309,7 +339,19 @@ public class ServerMain : MonoBehaviour
         int randomIndex = Random.Range(0, LuminaAudio.LuminaAudioClips_End.Length);
         float audioLength = LuminaAudio.LuminaAudioClips_End[randomIndex].length;
         LuminaAudio.PlayCustomAudio(LuminaAudio.LuminaAudioClips_End[randomIndex]); //嘴型跟音檔。
-        Lumina_Animtor.PlaySingleAnimation("Reset", true);
+        switch(randomIndex)
+        {
+            case 0:
+                ChatManager.instance.AddAIMessage("我的靈力用盡，一滴都不剩了，好啦好啦，最後給您一個改善運勢的小秘訣喔～申辦中華電信的相關業務，相信對你的運勢會更有幫助喔～ Lumi！");
+                break;
+            case 1:
+                ChatManager.instance.AddAIMessage("天機不可洩漏，再多我就吐血了，好啦好啦，最後給您一個改善運勢的小秘訣喔～申辦中華電信的相關業務，相信對你的運勢會更有幫助喔～，謝謝貴客，可以附近逛逛唷～ Lumi！");
+                break;
+            case 2:
+                ChatManager.instance.AddAIMessage("啊我沒電了，關機中，好啦好啦，最後給您一個改善運勢的小秘訣喔～申辦中華電信的相關業務，相信對你的運勢會更有幫助喔～謝謝貴客，可以附近逛逛唷～Lumi！ ");
+                break;
+        }
+        Lumina_Animtor.PlaySingleAnimation("END", returnLoopMode: LuminaCharatorAnimatorController.LoopMode.SleepIdle);
         yield return new WaitForSeconds(audioLength); //等待音檔播放完畢
         NextStage(Stage.Sleep);  //進入抽籤環節
         UI_TipText.text = "請搖晃手上的LUMINA籤筒，喚醒LUMINA！";  //Canvas 擲筊說明UI
@@ -345,7 +387,7 @@ public class ServerMain : MonoBehaviour
     {
         currentStage = Stage.Sleep;
         ARD.readMessage = "";
-        Lumina_Animtor.PlaySingleAnimation("Reset",true);
+        
         TossingWallManager.Instance.ClearAll();  //新增閃爍狀態
         QACount = 5;
         QACountText.text = "剩餘問答次數：" + QACount;
@@ -355,6 +397,8 @@ public class ServerMain : MonoBehaviour
         interactMode = InteractMode.Normal;
         SafeTag.SetActive(interactMode == InteractMode.Normal ? false : true);
         CountDownTimer.ResetAndPause(); //問答倒數重製
+        Lumina_Animtor.SleepIdleLoop = true;
+        Lumina_Animtor.PlaySingleAnimation("W-2 Final", true, null, LuminaCharatorAnimatorController.LoopMode.SleepIdle);
     }
 
     void RestCounter()

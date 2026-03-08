@@ -5028,6 +5028,14 @@ PrefabInstance:
       propertyPath: 'm_BlendShapeWeights.Array.data[10]'
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 13700034, guid: 49f2055d53eeb4e5a92af590a44bddee, type: 3}
+      propertyPath: 'm_BlendShapeWeights.Array.data[0]'
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 13700034, guid: 49f2055d53eeb4e5a92af590a44bddee, type: 3}
+      propertyPath: 'm_BlendShapeWeights.Array.data[1]'
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6766,6 +6774,8 @@ GameObject:
   - component: {fileID: 9179958769567864398}
   - component: {fileID: 9179958769567864397}
   - component: {fileID: 9179958769567864396}
+  - component: {fileID: 9179958769567864402}
+  - component: {fileID: 9179958769567864403}
   m_Layer: 0
   m_Name: Lumina_Fortune
   m_TagString: Untagged
@@ -19882,11 +19892,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0fd67a8af5874e46842189f0b3c086b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleAnimations:
+  SleepidleAnimations:
   - SL-1 Final
   - SL-2 Final
   - SL-3 Final
+  TalkingAnimations:
+  - Talk-01
+  - Talk-02
+  - Talk-03
+  - Talk-04
+  - Talk-05
+  - Talk-06
+  - Talk-07
+  - Talk-08
+  - Talk-09
+  - Talk-010
+  NormalidleAnimations:
+  - W-1 Final
+  - W-2 Final
+  - W-3 Final
+  - Talk-01
+  - Talk-02
+  - Talk-03
+  - Talk-04
+  - Talk-05
+  - Talk-06
+  - Talk-07
+  - Talk-08
+  - Talk-09
+  - Talk-010
   crossFadeDuration: 0.3
+  sleepIdleLoop: 0
+  talkingLoop: 0
+  normalIdleLoop: 0
 --- !u!114 &9179958769567864397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19951,7 +19989,7 @@ MonoBehaviour:
   minVolume: -2.507136
   maxVolume: -1.5071361
   smoothness: 0.05
-  usePhonemeBlend: 0
+  usePhonemeBlend: 1
 --- !u!114 &9179958769567864399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20061,6 +20099,234 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &9179958769567864402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182089409342396510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4c3c6345ee104b4695e6f7a2c098f3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blendSystem: {fileID: 9179958769567864403}
+  blinkingEnabled: 1
+  blinkingControlMode: 0
+  blinkingShape:
+    blendShapes: 
+    blendableNames: []
+    weights: []
+    bones: []
+    verified: 1
+  leftEyeBlinkBlendable: 29
+  rightEyeBlinkBlendable: 27
+  minimumBlinkGap: 1
+  maximumBlinkGap: 5
+  blinkDuration: 0.14
+  randomLookingEnabled: 0
+  lookingControlMode: 0
+  lookingUpShape:
+    blendShapes: 
+    blendableNames: []
+    weights: []
+    bones: []
+    verified: 1
+  lookingDownShape:
+    blendShapes: 
+    blendableNames: []
+    weights: []
+    bones: []
+    verified: 1
+  lookingLeftShape:
+    blendShapes: 
+    blendableNames: []
+    weights: []
+    bones: []
+    verified: 1
+  lookingRightShape:
+    blendShapes: 
+    blendableNames: []
+    weights: []
+    bones: []
+    verified: 1
+  _leftEyeLookAtBone: {fileID: 0}
+  _rightEyeLookAtBone: {fileID: 0}
+  eyeRotationRangeX: {x: -6.5, y: 6.5}
+  eyeRotationRangeY: {x: -17.2, y: 17.2}
+  eyeLookOffset: {x: 0, y: 0, z: 0}
+  eyeForwardAxis: 4
+  eyeTurnSpeed: 18
+  minimumChangeDirectionGap: 2
+  maximumChangeDirectionGap: 10
+  targetEnabled: 0
+  autoTarget: 0
+  autoTargetTag: EyeControllerTarget
+  autoTargetDistance: 10
+  viewTarget: {fileID: 0}
+  targetWeight: 1
+  boneUpdateAnimation: 0
+--- !u!114 &9179958769567864403
+MonoBehaviour:
+  m_ObjectHideFlags: 2
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182089409342396510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9036ca68e4aa8924a9003edadadd85a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isReady: 1
+  users:
+  - {fileID: 9179958769567864402}
+  _blendables:
+  - number: 0
+    currentWeight: 0
+  - number: 1
+    currentWeight: 0
+  - number: 2
+    currentWeight: 0
+  - number: 3
+    currentWeight: 0
+  - number: 4
+    currentWeight: 0
+  - number: 5
+    currentWeight: 0
+  - number: 6
+    currentWeight: 0
+  - number: 7
+    currentWeight: 0
+  - number: 8
+    currentWeight: 0
+  - number: 9
+    currentWeight: 0
+  - number: 10
+    currentWeight: 0
+  - number: 11
+    currentWeight: 0
+  - number: 12
+    currentWeight: 0
+  - number: 13
+    currentWeight: 0
+  - number: 14
+    currentWeight: 0
+  - number: 15
+    currentWeight: 0
+  - number: 16
+    currentWeight: 0
+  - number: 17
+    currentWeight: 0
+  - number: 18
+    currentWeight: 0
+  - number: 19
+    currentWeight: 0
+  - number: 20
+    currentWeight: 0
+  - number: 21
+    currentWeight: 0
+  - number: 22
+    currentWeight: 0
+  - number: 23
+    currentWeight: 0
+  - number: 24
+    currentWeight: 0
+  - number: 25
+    currentWeight: 0
+  - number: 26
+    currentWeight: 0
+  - number: 27
+    currentWeight: 0
+  - number: 28
+    currentWeight: 0
+  - number: 29
+    currentWeight: 0
+  - number: 30
+    currentWeight: 0
+  - number: 31
+    currentWeight: 0
+  - number: 32
+    currentWeight: 0
+  - number: 33
+    currentWeight: 0
+  - number: 34
+    currentWeight: 0
+  - number: 35
+    currentWeight: 0
+  - number: 36
+    currentWeight: 0
+  - number: 37
+    currentWeight: 0
+  - number: 38
+    currentWeight: 0
+  - number: 39
+    currentWeight: 0
+  - number: 40
+    currentWeight: 0
+  - number: 41
+    currentWeight: 0
+  - number: 42
+    currentWeight: 0
+  - number: 43
+    currentWeight: 0
+  - number: 44
+    currentWeight: 0
+  - number: 45
+    currentWeight: 0
+  - number: 46
+    currentWeight: 0
+  - number: 47
+    currentWeight: 0
+  - number: 48
+    currentWeight: 0
+  - number: 49
+    currentWeight: 0
+  - number: 50
+    currentWeight: 0
+  - number: 51
+    currentWeight: 0
+  - number: 52
+    currentWeight: 0
+  - number: 53
+    currentWeight: 0
+  - number: 54
+    currentWeight: 0
+  - number: 55
+    currentWeight: 0
+  - number: 56
+    currentWeight: 0
+  - number: 57
+    currentWeight: 0
+  - number: 58
+    currentWeight: 0
+  - number: 59
+    currentWeight: 0
+  - number: 60
+    currentWeight: 0
+  - number: 61
+    currentWeight: 0
+  - number: 62
+    currentWeight: 0
+  - number: 63
+    currentWeight: 0
+  - number: 64
+    currentWeight: 0
+  - number: 65
+    currentWeight: 0
+  - number: 66
+    currentWeight: 0
+  - number: 67
+    currentWeight: 0
+  - number: 68
+    currentWeight: 0
+  - number: 69
+    currentWeight: 0
+  - number: 70
+    currentWeight: 0
+  characterMesh: {fileID: 8474731849068516601}
+  optionalOtherMeshes: []
 --- !u!1 &9181708236933707286
 GameObject:
   m_ObjectHideFlags: 0
