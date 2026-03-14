@@ -361,6 +361,11 @@ public class ServerMain : MonoBehaviour
     }
     void TalkDetect()
     {
+        if (Input.GetKeyUp(KeyCode.T) && TTS_System.isRecording && TTS_System.Talkbool())
+        {
+            TTS_System.StopRecording();
+            return;
+        }
         if ((Input.GetKeyUp(KeyCode.T) || ARD.readMessage == "Coin") && TTS_System.Talkbool() && !TTS_System.isRecording)
         {
             ARD.readMessage = "";
@@ -379,6 +384,7 @@ public class ServerMain : MonoBehaviour
                 StartCoroutine(EndAction());
             }
         }
+
     }
     /// <summary>
     /// 重製，並回到Sleep狀態。

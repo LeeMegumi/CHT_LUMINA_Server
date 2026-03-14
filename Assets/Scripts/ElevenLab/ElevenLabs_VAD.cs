@@ -232,7 +232,7 @@ public class ElevenLabs_VAD : MonoBehaviour
         }
     }
 
-    void StopRecording()
+    public void StopRecording()
     {
         if (!isRecording) return;
 

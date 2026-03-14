@@ -579,7 +579,7 @@ public class WebRTCManager : MonoBehaviour
         // 建立完整的 Offer 請求（包含 Persona 和 Few-shot）
         var completeOfferData = new CompleteOfferRequest
         {
-            sdp = offer.sdp,  // ✅ 這裡就是你要的 SDP 字串！
+            sdp = offer.sdp,  // 
             type = "offer",
             audio_only= true,
             persona = new Persona
