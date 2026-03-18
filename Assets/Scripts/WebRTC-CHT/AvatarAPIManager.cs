@@ -7,7 +7,10 @@ using Newtonsoft.Json; // 需要安裝JSON.NET套件
 
 public class AvatarAPIManager : MonoBehaviour
 {
-    public string TURN_INFO_URL = "https://backend.avatar.cht.com.tw/streaming/getTurnInformation";
+    //public string TURN_INFO_URL = "https://backend.avatar.cht.com.tw/streaming/getTurnInformation";
+    //public string OFFER_URL = "https://prod-avatar.guide-next.com/v1/avatar/offer";
+    //-------------------------------------------------------------------------------------
+    public string TURN_INFO_URL = "https://prod-avatar.guide-next.com/v1/avatar/turn";
     public string OFFER_URL = "https://prod-avatar.guide-next.com/v1/avatar/offer";
 
     public string accessToken;
@@ -24,6 +27,7 @@ public class AvatarAPIManager : MonoBehaviour
     // Step 1: 取得TURN伺服器資訊
     public IEnumerator GetTurnInformation()
     {
+        TURN_INFO_URL = "https://prod-avatar.guide-next.com/v1/avatar/turn";
         UnityWebRequest request = new UnityWebRequest(TURN_INFO_URL, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes("{}");
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
